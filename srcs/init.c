@@ -43,6 +43,7 @@ t_cursor	*init_cursor(uint_t place, int whom)
 	id++;
 	new_cursor = (t_cursor *)malloc(sizeof(t_cursor));
 	new_cursor->id = id;
+	new_cursor->op = g_arena[place];
 	new_cursor->carry = 0;
 	new_cursor->place = place;
 	new_cursor->last_live = 0;

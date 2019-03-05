@@ -50,8 +50,8 @@ static void	intro(int amount_players)
 		{
 			ft_printf("* Player %d, weighing %d bytes, %s (%s) !\n",
 				PLAY_ID(i), PLAY_SIZE(i), PLAY_NAME(i), PLAY_COMMENT(i));
-			ft_lstadd(&g_all_cursor, ft_lstnew_link(init_cursor(j * MEM_SIZE / amount_players, i), 8));
 			init_map(j * MEM_SIZE / amount_players, i);
+			ft_lstadd(&g_all_cursor, ft_lstnew_link(init_cursor(j * MEM_SIZE / amount_players, i), 8));
 			j++;
 		}
 }

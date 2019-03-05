@@ -55,17 +55,21 @@
 # define COMMENT_LENGTH		(2048)
 # define COREWAR_EXEC_MAGIC	0xea83f3
 
-/*
-typedef struct			s_header
-{
-	unsigned int		magic;
-	char				prog_name[PROG_NAME_LENGTH + 1];
-	unsigned int		prog_size;
-	char				comment[COMMENT_LENGTH + 1];
-}						t_header;
-*/
+# define uchar            unsigned char
+# define bool            char
+# define uint_t            unsigned int
 
 //typedef t_func;
+
+typedef struct    s_op
+{
+    char        *name;
+    uchar        args_num;
+    uchar        args_types[3];
+    bool        flag;
+    uchar        t_dir_size;
+    //    t_func        func;
+}                t_op;
 
 
 t_op    g_op_tab[16] =

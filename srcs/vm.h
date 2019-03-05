@@ -62,16 +62,6 @@ typedef struct			s_cursor
 	int32_t				reg[REG_NUMBER]; //int?
 }						t_cursor;
 
-typedef struct	s_op
-{
-	char		*name;
-	uchar		args_num;
-	uchar		args_types[3];
-	bool		flag;
-	uchar		t_dir_size;
-//	t_func		func;
-}				t_op;
-
 uchar		g_arena[MEM_SIZE];
 char		g_arena_color[MEM_SIZE];
 t_player	*g_array_players[MAX_PLAYERS];
