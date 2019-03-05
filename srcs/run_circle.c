@@ -12,7 +12,7 @@
 
 #include "vm.h"
 
-void	read_op(t_cursor *cursor)
+void	run_one_cursor(t_cursor *cursor)
 {
 	int		shift;
 	int		arg;
