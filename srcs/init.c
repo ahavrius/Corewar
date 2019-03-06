@@ -44,10 +44,10 @@ t_cursor	*init_cursor(uint_t place, int whom)
 	new_cursor = (t_cursor *)malloc(sizeof(t_cursor));
 	new_cursor->id = id;
 	new_cursor->op = g_arena[place];
+	cursor->delay = g_op_tab_time[cursor->op - 1];
 	new_cursor->carry = 0;
 	new_cursor->place = place;
 	new_cursor->last_live = 0;
-	new_cursor->delay = 0;
 	i = 0;
 	new_cursor->reg[i] = -whom;
 	while (++i < REG_NUMBER)
