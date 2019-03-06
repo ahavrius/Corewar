@@ -10,7 +10,7 @@ OBJ_DIR := ./objs/
 
 LIB_M := ./libft/Makefile
 
-SRC := error.c init.c read_bytecode.c read_file.c main.c
+SRC := error.c init.c read_bytecode.c read_file.c main.c run_circle.c
 
 OBJ := $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 

@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 {
 	read_flags(argc, argv);
 
-
+	run_one_circle();
 
 	return (0);
 }

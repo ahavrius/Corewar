@@ -54,8 +54,10 @@ static void	intro(int amount_players)
 			ft_lstadd(&g_all_cursor, ft_lstnew_link(init_cursor(j * MEM_SIZE / amount_players, i), 8));
 			j++;
 		}
+	init_global();
 }
 
+//add read with -v and normal external flag parcing ...
 void	read_flags(int argc, char **argv)
 {
 	int			i;
@@ -86,6 +88,6 @@ void	read_flags(int argc, char **argv)
 		read_file(argv[i], player_number);
 		amount_players++;
 	}
-
+//move to another file
 	intro(amount_players);
 }

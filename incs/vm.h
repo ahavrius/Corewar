@@ -34,8 +34,7 @@
 # define PLAY_SIZE(i)		(g_array_players[(i)]->header->prog_size)
 # define PLAY_COMMENT(i)	(g_array_players[(i)]->header->comment)
 # define PLAY_CODE(i)		(g_array_players[(i)]->code)
-
-
+# define PLAYER(i)			(g_array_players[(i) - 1])
 
 typedef struct			s_header
 {
@@ -59,8 +58,11 @@ typedef struct			s_cursor
 	uint_t				place;
 	uint_t				last_live;
 	uint_t				delay;
-	int32_t				reg[REG_NUMBER]; //int?
+	int32_t				reg[REG_NUMBER];
 }						t_cursor;
+
+//typedef t_func;
+
 
 typedef struct	s_op
 {
@@ -72,21 +74,55 @@ typedef struct	s_op
 //	t_func		func;
 }				t_op;
 
-uchar		g_arena[MEM_SIZE];
-char		g_arena_color[MEM_SIZE];
-t_player	*g_array_players[MAX_PLAYERS];
+static t_op    g_op_tab[16] =
+{
+	{"live", 1, {T_DIR}, 0, 4},
+	{"ld", 2, {T_DIR | T_IND, T_REG}, 1, 4},
+	{"st", 2, {T_REG, T_IND | T_REG}, 1, 4},
+	{"add", 3, {T_REG, T_REG, T_REG}, 1, 4},
+	{"sub", 3, {T_REG, T_REG, T_REG}, 1, 4},
+	{"and", 3, {T_REG | T_DIR | T_IND, T_REG | T_IND | T_DIR, T_REG}, 1, 4},
+	{"or", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 1, 4},
+	{"xor", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 1, 4},
+	{"zjmp", 1, {T_DIR}, 0, 2},
+	{"ldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2},
+	{"sti", 3, {T_REG, T_REG | T_DIR | T_IND, T_DIR | T_REG}, 1, 2},
+	{"fork", 1, {T_DIR}, 0, 2},
+	{"lld", 2, {T_DIR | T_IND, T_REG}, 1, 4},
+	{"lldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2},
+	{"lfork", 1, {T_DIR}, 0, 2},
+	{"aff", 1, {T_REG}, 1, 4}
+};
 
-int			g_dump;
-t_list		*g_all_cursor;
+static int		g_op_tab_time[16]= {10, 5, 5, 10, 10, 6, 6, 6, 20, 25, 25, 800, 10, 50, 1000, 2};
+
+ uchar			g_arena[MEM_SIZE];
+ char			g_arena_color[MEM_SIZE];
+ t_player		*g_array_players[MAX_PLAYERS];
+ t_list			*g_all_cursor;
+
+//for cyrcles
+ t_player		*g_last_player;
+ uint_t			g_current_cyrcle;
+ int			g_cycles_to_die;
+ uint_t			g_live_per_cyrcle;
+ uint_t			g_check_amount;//количество проведенных проверок
+
+ int			g_dump;
+ bool			g_vizo;
 
 
 t_header	*init_header(uint_t magic, char *prog_name, uint_t prog_size, char *comment);
 t_player	*init_player(t_header *header, char *code);
 t_cursor	*init_cursor(uint_t place, int whom);
 void		init_map(uint_t place, int whom);
+void		init_global(void);
 
 
 t_player	*parce_bytecode(int file, uint_t number);
 void		read_flags(int argc, char **argv);
+
+void		run_one_circle(void);
+
 
 #endif

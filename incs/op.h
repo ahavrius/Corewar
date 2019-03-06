@@ -13,8 +13,6 @@
 #ifndef OP_H
 # define OP_H
 
-# include "vm.h"
-
 #define IND_SIZE			2
 #define REG_SIZE			4
 #define DIR_SIZE			REG_SIZE
@@ -54,41 +52,5 @@
 # define PROG_NAME_LENGTH	(128)
 # define COMMENT_LENGTH		(2048)
 # define COREWAR_EXEC_MAGIC	0xea83f3
-
-/*
-typedef struct			s_header
-{
-	unsigned int		magic;
-	char				prog_name[PROG_NAME_LENGTH + 1];
-	unsigned int		prog_size;
-	char				comment[COMMENT_LENGTH + 1];
-}						t_header;
-*/
-
-//typedef t_func;
-
-
-t_op    g_op_tab[16] =
-{
-	{"live", 1, {T_DIR}, 0, 4},
-	{"ld", 2, {T_DIR | T_IND, T_REG}, 1, 4},
-	{"st", 2, {T_REG, T_IND | T_REG}, 1, 4},
-	{"add", 3, {T_REG, T_REG, T_REG}, 1, 4},
-	{"sub", 3, {T_REG, T_REG, T_REG}, 1, 4},
-	{"and", 3, {T_REG | T_DIR | T_IND, T_REG | T_IND | T_DIR, T_REG}, 1, 4},
-	{"or", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 1, 4},
-	{"xor", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 1, 4},
-	{"zjmp", 1, {T_DIR}, 0, 2},
-	{"ldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2},
-	{"sti", 3, {T_REG, T_REG | T_DIR | T_IND, T_DIR | T_REG}, 1, 2},
-	{"fork", 1, {T_DIR}, 0, 2},
-	{"lld", 2, {T_DIR | T_IND, T_REG}, 1, 4},
-	{"lldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2},
-	{"lfork", 1, {T_DIR}, 0, 2},
-	{"aff", 1, {T_REG}, 1, 4}
-};
-
-
-int		g_op_tab_time[16] = {10, 5, 5, 10, 10, 6, 6, 6, 20, 25, 25, 800, 10, 50, 1000, 2};
 
 #endif
