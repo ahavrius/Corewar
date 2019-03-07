@@ -13,6 +13,7 @@
 #ifndef VM_ERROR_H
 # define VM_ERROR_H
 
+# define ERROR_NOFILE "ERROR : nothing to open"
 # define ERROR_OPENFILE "ERROR : can't open file for reading"
 # define ERROR_READFILE "ERROR : invalid reading format"
 # define ERROR_MAGICNUMBER "ERROR : mismatch of magic numbers"
@@ -22,6 +23,9 @@
 # define ERROR_MEMALLOC "ERROR : can't allocate memory"
 # define ERROR_FLAGFORMAT "ERROR : wrong flag format"
 # define ERROR_FILECOR "ERROR : invalid file extension"
+# define ERROR_TOOLONG "ERROR : file is too long"
+//Error: File champs/42.cor has too large a code (993 bytes > 682 bytes) ;(
+# define ERROR_CODESIZE "ERROR : file has too large a code"
 
 void	drop_error(char *text_error);
 

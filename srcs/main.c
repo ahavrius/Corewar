@@ -15,9 +15,13 @@
 
 int main(int argc, char **argv)
 {
-	read_flags(argc, argv);
+	main_read(argc, argv);
 
-	run_one_circle();
-
+	if (g_dump == 0)
+		print_map();
+	else
+		buttle();
+	main_free();
+	//system("leaks corewar");
 	return (0);
 }

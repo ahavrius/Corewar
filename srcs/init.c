@@ -44,9 +44,10 @@ t_cursor	*init_cursor(uint_t place, int whom)
 	new_cursor = (t_cursor *)malloc(sizeof(t_cursor));
 	new_cursor->id = id;
 	new_cursor->op = g_arena[place];
-	new_cursor->delay = g_op_tab_time[new_cursor->op - 1];
+	new_cursor->delay = (new_cursor->op > 0 && new_cursor->op <= 16) ?
+							g_op_tab_time[new_cursor->op - 1] : 0;
 	new_cursor->carry = 0;
-	new_cursor->place = place;
+	new_cursor->place = place % MEM_SIZE;
 	i = 0;
 	new_cursor->reg[i] = -whom - 1;
 	while (++i < REG_NUMBER)
@@ -59,7 +60,7 @@ void		init_map(uint_t place, int whom)
 	int		i; 
 
 	i = -1;
-	while (PLAY_CODE(whom)[++i] != '\0')
+	while (++i < PLAY_SIZE(whom))
 	{
 		g_arena[(place + i) % MEM_SIZE] = PLAY_CODE(whom)[i];
 		g_arena_color[(place + i) % MEM_SIZE] = whom;

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   run_circle.c                                       :+:      :+:    :+:   */
+/*   buttle.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ahavrius <ahavrius@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/03/05 20:30:45 by ahavrius          #+#    #+#             */
-/*   Updated: 2019/03/05 20:30:46 by ahavrius         ###   ########.fr       */
+/*   Created: 2019/03/07 20:37:32 by ahavrius          #+#    #+#             */
+/*   Updated: 2019/03/07 20:37:35 by ahavrius         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,22 +16,25 @@ static void	run_one_cursor(t_list *l_cursor)
 {
 	int			arg;
 	t_cursor	*cursor;
+	int			shift;
 
+	shift = 0;
 	cursor = (t_cursor *)l_cursor->content;
-	if (cursor->delay-- > 0)
+	if (cursor->delay > 0 && --cursor->delay > 0)
 		return ;
-	if (cursor->op == g_arena[cursor->place])
+	if (cursor->op == g_arena[cursor->place] && cursor->op > 0 && cursor->op <= 16)
 	{
 		arg = 0x80;
 		if (g_op_tab[cursor->op - 1].flag)
-			arg = g_arena[++cursor->place];
-		//tern on op func (cursor, arg, &shift) - change last_live and so on
-		//cursor->place += shift;
+			arg = g_arena[cursor->place + 1];
+		//g_op_tab[cursor->op - 1].func(cursor, arg, &shift);
+		cursor->place += shift;
 	}
 	else
-			cursor->place++;
+			cursor->place = (cursor->place + 1) % MEM_SIZE;
 	cursor->op = g_arena[cursor->place];
-	cursor->delay = g_op_tab_time[cursor->op - 1];
+	if (cursor->op > 0 && cursor->op <= 16)
+		cursor->delay = g_op_tab_time[cursor->op - 1];
 }
 
 static t_list	*kill_when(t_list *l_cursor)
@@ -42,7 +45,7 @@ static t_list	*kill_when(t_list *l_cursor)
 	cursor = (t_cursor *)l_cursor->content;
 	new = NULL;
 	if (cursor->last_live < g_cycles_to_die)
-		new = ft_lstnew(cursor, 8);
+		new = ft_lstnew_link(cursor, 8);
 	else
 		free(cursor);
 	l_cursor->content = NULL;
@@ -50,32 +53,51 @@ static t_list	*kill_when(t_list *l_cursor)
 }
 
 
-static void	kill_cursors(void)
+static t_list	*kill_cursors(void)
 {
 	t_list	*new_list;
 
 	new_list = ft_lstmap_link(g_all_cursor, kill_when);
 	new_list = ft_lst_reverse(new_list);
 	ft_lstdel(&g_all_cursor, NULL);
-	g_all_cursor = new_list;
+	return (new_list);
 }
 
-void		run_one_circle(void)
+void		one_check(void)
 {
 	int		rounds;
 
 	rounds = -1;
 	g_live_per_cyrcle = 0;
-	while (++rounds < g_cycles_to_die + (g_cycles_to_die <= 0))
+	while (++rounds < ((g_cycles_to_die > 0) ? g_cycles_to_die : 1)
+			&& (g_dump == DUMP || g_current_cyrcle < g_dump))
 	{
 		ft_lstiter(g_all_cursor, run_one_cursor);
 		g_current_cyrcle++;
+		//viso ?
 	}
-	//clean cursor
+	if (g_current_cyrcle == g_dump)
+		return ;
+	g_all_cursor = kill_cursors();
 	if (g_live_per_cyrcle >= NBR_LIVE || ++g_check_amount == MAX_CHECKS)
 	{
 		g_cycles_to_die =- CYCLE_DELTA * (g_cycles_to_die > 0);
 		g_check_amount = 0;		
 	}
+	//viso ?
+}
+
+void		buttle(void)
+{
+	while (ft_lstlen(g_all_cursor) > 0 && (g_dump == DUMP || g_current_cyrcle < g_dump))
+		one_check();
+	if (g_current_cyrcle == g_dump)
+	{
+		print_map();
+		return ;
+	}
+	if (g_last_player != NULL)
+		ft_printf("Contestant %d, \"%s\", has won !\n",
+			g_last_player->header->magic, g_last_player->header->prog_name);
 
 }

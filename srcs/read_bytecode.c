@@ -87,6 +87,8 @@ t_player	*parce_bytecode(int file, uint_t number)
 	if (bytecode_to_uint(file, 4) != 0)
 		drop_error(ERROR_NULLFORMAT);
 	header->prog_size = bytecode_to_uint(file, 4);
+	if (header->prog_size > CHAMP_MAX_SIZE)
+		drop_error(ERROR_CODESIZE);
 	header->comment = bytecode_to_char(file, COMMENT_LENGTH);
 	if (bytecode_to_uint(file, 4) != 0)
 		drop_error(ERROR_NULLFORMAT);

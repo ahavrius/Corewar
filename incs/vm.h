@@ -29,12 +29,17 @@
 # define bool			char
 # define uint_t			unsigned int
 
+# define PLAY_HEAD(i)		(g_array_players[(i)]->header)
 # define PLAY_NAME(i)		(g_array_players[(i)]->header->prog_name)
 # define PLAY_ID(i)			(g_array_players[(i)]->header->magic)
 # define PLAY_SIZE(i)		(g_array_players[(i)]->header->prog_size)
 # define PLAY_COMMENT(i)	(g_array_players[(i)]->header->comment)
 # define PLAY_CODE(i)		(g_array_players[(i)]->code)
 # define PLAYER(i)			(g_array_players[(i) - 1])
+# define IF_FREE(x)			if (x) free(x)
+
+
+# define DUMP				(-1)
 
 typedef struct			s_header
 {
@@ -61,9 +66,6 @@ typedef struct			s_cursor
 	int32_t				reg[REG_NUMBER];
 }						t_cursor;
 
-//typedef t_func;
-
-
 typedef struct	s_op
 {
 	char		*name;
@@ -71,27 +73,27 @@ typedef struct	s_op
 	uchar		args_types[3];
 	bool		flag;
 	uchar		t_dir_size;
-//	t_func		func;
+	int			(*func)(t_cursor *, int, int *);
 }				t_op;
 
 static t_op    g_op_tab[16] =
 {
-	{"live", 1, {T_DIR}, 0, 4},
-	{"ld", 2, {T_DIR | T_IND, T_REG}, 1, 4},
-	{"st", 2, {T_REG, T_IND | T_REG}, 1, 4},
-	{"add", 3, {T_REG, T_REG, T_REG}, 1, 4},
-	{"sub", 3, {T_REG, T_REG, T_REG}, 1, 4},
-	{"and", 3, {T_REG | T_DIR | T_IND, T_REG | T_IND | T_DIR, T_REG}, 1, 4},
-	{"or", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 1, 4},
-	{"xor", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 1, 4},
-	{"zjmp", 1, {T_DIR}, 0, 2},
-	{"ldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2},
-	{"sti", 3, {T_REG, T_REG | T_DIR | T_IND, T_DIR | T_REG}, 1, 2},
-	{"fork", 1, {T_DIR}, 0, 2},
-	{"lld", 2, {T_DIR | T_IND, T_REG}, 1, 4},
-	{"lldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2},
-	{"lfork", 1, {T_DIR}, 0, 2},
-	{"aff", 1, {T_REG}, 1, 4}
+	{"live", 1, {T_DIR}, 0, 4, 0},
+	{"ld", 2, {T_DIR | T_IND, T_REG}, 1, 4, 0},
+	{"st", 2, {T_REG, T_IND | T_REG}, 1, 4, 0},
+	{"add", 3, {T_REG, T_REG, T_REG}, 1, 4, 0},
+	{"sub", 3, {T_REG, T_REG, T_REG}, 1, 4, 0},
+	{"and", 3, {T_REG | T_DIR | T_IND, T_REG | T_IND | T_DIR, T_REG}, 1, 4, 0},
+	{"or", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 1, 4, 0},
+	{"xor", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 1, 4, 0},
+	{"zjmp", 1, {T_DIR}, 0, 2, 0},
+	{"ldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2, 0},
+	{"sti", 3, {T_REG, T_REG | T_DIR | T_IND, T_DIR | T_REG}, 1, 2, 0},
+	{"fork", 1, {T_DIR}, 0, 2, 0},
+	{"lld", 2, {T_DIR | T_IND, T_REG}, 1, 4, 0},
+	{"lldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2, 0},
+	{"lfork", 1, {T_DIR}, 0, 2, 0},
+	{"aff", 1, {T_REG}, 1, 4, 0}
 };
 
 static int		g_op_tab_time[16]= {10, 5, 5, 10, 10, 6, 6, 6, 20, 25, 25, 800, 10, 50, 1000, 2};
@@ -112,17 +114,19 @@ static int		g_op_tab_time[16]= {10, 5, 5, 10, 10, 6, 6, 6, 20, 25, 25, 800, 10, 
  bool			g_vizo;
 
 
-t_header	*init_header(uint_t magic, char *prog_name, uint_t prog_size, char *comment);
-t_player	*init_player(t_header *header, char *code);
-t_cursor	*init_cursor(uint_t place, int whom);
-void		init_map(uint_t place, int whom);
-void		init_global(void);
+t_header		*init_header(uint_t magic, char *prog_name, uint_t prog_size, char *comment);
+t_player		*init_player(t_header *header, char *code);
+t_cursor		*init_cursor(uint_t place, int whom);
+void			init_map(uint_t place, int whom);
+void			init_global(void);
 
+t_player		*parce_bytecode(int file, uint_t number);
+void			main_read(int argc, char **argv);
+void			main_free(void);
 
-t_player	*parce_bytecode(int file, uint_t number);
-void		read_flags(int argc, char **argv);
-
-void		run_one_circle(void);
-
+void			buttle(void);
+void			print_map(void);
+void			help(char *name);
+void			intro(int amount_players);
 
 #endif

@@ -46,7 +46,7 @@ char				*ft_strnstr(const char *haystack, const char *needle,
 						size_t len);
 int					ft_atoi(const char *str);
 int					ft_isalpha(int c);
-int					ft_isdigit(int c);
+int					ft_isdigit(char c);
 int					ft_isalnum(int c);
 int					ft_isascii(int c);
 int					ft_isprint(int c);
@@ -82,6 +82,7 @@ void				ft_putstr_fd(char const *s, int fd);
 void				ft_putendl_fd(char const *s, int fd);
 void				ft_putnbr_fd(int n, int fd);
 
+int					ft_striter_bool(char *s, int (*f)(char));
 size_t				ft_strnshift(char const *s1, char const *s2);
 size_t				ft_strshift(char const *s, char c, size_t start);
 int					ft_strcountchr(char *str, char c);

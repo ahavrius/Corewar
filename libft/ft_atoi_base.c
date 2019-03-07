@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-//add to libft
+#include "libft.h"
 
 int		ft_number(char c, int *stop, int base)
 {
