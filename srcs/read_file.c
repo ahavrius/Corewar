@@ -12,7 +12,7 @@
 
 #include "vm.h"
 
-static void	read_file(char *file_name, int player_number)
+static void	read_file(char *file_name, int player_number, t_list **poor_players)
 {
 	char		c;
 	t_player	*cur_player;
@@ -24,13 +24,18 @@ static void	read_file(char *file_name, int player_number)
 	if (file == -1)
 		drop_error(ERROR_OPENFILE);
 	cur_player = parce_bytecode(file, player_number);
-	g_array_players[cur_player->header->magic - 1] = cur_player;
+	if (player_number == INT_MAX)
+		ft_lstadd(poor_players, ft_lstnew_link(cur_player, 2));
+	else if	(g_array_players[player_number - 1])
+		drop_error(ERROR_DOUBLEPLAYERS);
+	else
+		g_array_players[player_number - 1] = cur_player;
 	if (read(file, &c, 1) > 0)
 		drop_error(ERROR_TOOLONG);
 	close(file);
 }
 
-static int	read_players(int argc, char **argv)
+static int	read_players(int argc, char **argv, t_list **poor_players)
 {
 	int			i;
 	int			player_number;
@@ -40,7 +45,7 @@ static int	read_players(int argc, char **argv)
 	amount_players = 0;
 	while (++i < argc)
 	{
-		player_number = 0;
+		player_number = INT_MAX;
 		if (ft_strcmp(argv[i], "-n") == 0)
 		{
 			if (i + 2 >= argc)
@@ -48,7 +53,9 @@ static int	read_players(int argc, char **argv)
 			player_number = ft_atoi(argv[i + 1]);
 			i += 2;
 		}
-		read_file(argv[i], player_number);
+		if (player_number != INT_MAX && (player_number <= 0 || player_number > MAX_PLAYERS))
+			drop_error(ERROR_PLAYERNUMBER);
+		read_file(argv[i], player_number, poor_players);
 		amount_players++;
 	}
 	return (amount_players);
@@ -60,7 +67,7 @@ static int	read_flags(int argc, char **argv)
 
 	i = 1;
 	g_dump = -1;
-	while (i < argc && (ft_strcmp(argv[i], "-dump") == 0 || ft_strcmp(argv[i], "-v") == 0))
+	while (i < argc && (ft_strcmp(argv[i], "-dump") == 0 || ft_strcmp(argv[i], "-v") == 0 || ft_strcmp(argv[i], "-vizo") == 0 || ft_strcmp(argv[i], "-a") == 0))
 	{
 		if (ft_strcmp(argv[i], "-dump") == 0)
 		{
@@ -69,11 +76,21 @@ static int	read_flags(int argc, char **argv)
 			g_dump = ft_atoi(argv[i + 1]);
 			i += 2;
 		}
-		if (ft_strcmp(argv[i], "-v") == 0)
+		if (ft_strcmp(argv[i], "-vizo") == 0)
 		{
 			g_vizo = 1;
 			i++;
 		}
+		if (ft_strcmp(argv[i], "-v") == 0)
+		{
+			if (i + 1 >= argc || ft_strlen(argv[i + 1]) != ft_striter_bool(argv[i + 1], ft_isdigit))
+				drop_error(ERROR_FLAGFORMAT);
+			g_vflag = ft_atoi(argv[i + 1]);
+			g_vflag *= (g_vflag >= 0 && g_vflag <= 31);
+			i += 2;
+		}
+		if (ft_strcmp(argv[i], "-a") == 0)
+			g_aflag = 1;
 	}
 	return (i);
 }
@@ -82,7 +99,9 @@ void		main_read(int argc, char **argv)
 {
 	int		shift;
 	int		amount_players;
+	t_list	*poor_players;
 
+	poor_players = NULL;
 	if (argc == 1)
 	{
 		help(argv[0]);
@@ -91,7 +110,8 @@ void		main_read(int argc, char **argv)
 	shift = read_flags(argc, argv);
 	if (shift == argc)
 		drop_error(ERROR_NOFILE);
-	amount_players = read_players(argc - shift, &argv[shift]);
+	amount_players = read_players(argc - shift, &argv[shift], &poor_players);
 
-	intro(amount_players);
+
+	intro(amount_players, &poor_players);
 }

@@ -20,21 +20,30 @@ static void	run_one_cursor(t_list *l_cursor)
 
 	shift = 0;
 	cursor = (t_cursor *)l_cursor->content;
+    if (cursor->delay == 0)
+    {
+        cursor->op = g_arena[cursor->place];
+        if (cursor->op > 0 && cursor->op <= 16)
+            cursor->delay = g_op_tab_time[cursor->op - 1];
+    }
 	if (cursor->delay > 0 && --cursor->delay > 0)
 		return ;
-	if (cursor->op == g_arena[cursor->place] && cursor->op > 0 && cursor->op <= 16)
+	//if (cursor->op == g_arena[cursor->place] && cursor->op > 0 && cursor->op <= 16)
+	if (cursor->op > 0 && cursor->op <= 16)
 	{
-		arg = 0x80;
+		arg = 0;
 		if (g_op_tab[cursor->op - 1].flag)
 			arg = g_arena[cursor->place + 1];
-		//g_op_tab[cursor->op - 1].func(cursor, arg, &shift);
+		g_op_tab[cursor->op - 1].func(cursor, arg, &shift);
+		if ((g_vflag & 0x10) && shift)
+			cursor_move(cursor, shift);
 		cursor->place += shift;
 	}
 	else
-			cursor->place = (cursor->place + 1) % MEM_SIZE;
-	cursor->op = g_arena[cursor->place];
-	if (cursor->op > 0 && cursor->op <= 16)
-		cursor->delay = g_op_tab_time[cursor->op - 1];
+		cursor->place = (cursor->place + 1) % MEM_SIZE;
+//	cursor->op = g_arena[cursor->place];
+//    if (cursor->op > 0 && cursor->op <= 16)
+//        cursor->delay = g_op_tab_time[cursor->op - 1];
 }
 
 static t_list	*kill_when(t_list *l_cursor)
@@ -44,10 +53,15 @@ static t_list	*kill_when(t_list *l_cursor)
 
 	cursor = (t_cursor *)l_cursor->content;
 	new = NULL;
-	if (cursor->last_live < g_cycles_to_die)
-		new = ft_lstnew_link(cursor, 8);
+	if ((g_current_cyrcle - cursor->last_live) < g_cycles_to_die)
+        new = ft_lstnew_link(cursor, 8);
 	else
-		free(cursor);
+    {
+        if (g_vflag & 0x08)
+            ft_printf("Process %d hasn't lived for %d cycles (CTD %d)\n",
+	            cursor->id, g_current_cyrcle - cursor->last_live, g_cycles_to_die);
+	    free(cursor);
+    }
 	l_cursor->content = NULL;
 	return (new);
 }
@@ -72,32 +86,46 @@ void		one_check(void)
 	while (++rounds < ((g_cycles_to_die > 0) ? g_cycles_to_die : 1)
 			&& (g_dump == DUMP || g_current_cyrcle < g_dump))
 	{
+        g_current_cyrcle++;
+        if (g_vflag & 0x02)
+            ft_printf("It is now cycle %d\n", g_current_cyrcle);
 		ft_lstiter(g_all_cursor, run_one_cursor);
-		g_current_cyrcle++;
-		//viso ?
+
+		//viso
 	}
 	if (g_current_cyrcle == g_dump)
 		return ;
 	g_all_cursor = kill_cursors();
 	if (g_live_per_cyrcle >= NBR_LIVE || ++g_check_amount == MAX_CHECKS)
 	{
-		g_cycles_to_die =- CYCLE_DELTA * (g_cycles_to_die > 0);
-		g_check_amount = 0;		
+        g_cycles_to_die -= CYCLE_DELTA ; //* (g_cycles_to_die >= 0);
+        if (g_vflag & 0x02)
+            ft_printf("Cycle to die is now %d\n", g_cycles_to_die);
+		g_check_amount = 0;
+
 	}
+
 	//viso ?
 }
 
 void		buttle(void)
 {
 	while (ft_lstlen(g_all_cursor) > 0 && (g_dump == DUMP || g_current_cyrcle < g_dump))
-		one_check();
+    {
+	    one_check();
+        //ft_printf("123  %d\n", ft_lstlen(g_all_cursor));
+    }
 	if (g_current_cyrcle == g_dump)
 	{
 		print_map();
 		return ;
 	}
 	if (g_last_player != NULL)
-		ft_printf("Contestant %d, \"%s\", has won !\n",
-			g_last_player->header->magic, g_last_player->header->prog_name);
+    {
+	    ft_printf("cycle - %d %d\n", g_current_cyrcle, g_cycles_to_die);
+        ft_printf("Contestant %d, \"%s\", has won !\n",
+                  g_last_player->header->magic, g_last_player->header->prog_name);
+    }
+
 
 }

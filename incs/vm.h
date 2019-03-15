@@ -20,6 +20,7 @@
 # include <unistd.h>
 # include <stdint.h>
 # include <stdlib.h>
+# include <limits.h>
 /*
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -63,6 +64,7 @@ typedef struct			s_cursor
 	uint_t				place;
 	uint_t				last_live;
 	uint_t				delay;
+	uint_t              owner;
 	int32_t				reg[REG_NUMBER];
 }						t_cursor;
 
@@ -76,24 +78,41 @@ typedef struct	s_op
 	int			(*func)(t_cursor *, int, int *);
 }				t_op;
 
+int				make_live(t_cursor *cursor, int arg, int *shift);
+int				make_ld(t_cursor *cursor, int arg, int *shift);
+int				make_st(t_cursor *cursor, int arg, int *shift);
+int				make_add(t_cursor *cursor, int arg, int *shift);
+int				make_sub(t_cursor *cursor, int arg, int *shift);
+int				make_and(t_cursor *cursor, int arg, int *shift);
+int				make_or(t_cursor *cursor, int arg, int *shift);
+int				make_xor(t_cursor *cursor, int arg, int *shift);
+int				make_zjmp(t_cursor *cursor, int arg, int *shift);
+int				make_ldi(t_cursor *cursor, int arg, int *shift);
+int				make_sti(t_cursor *cursor, int arg, int *shift);
+int				make_fork(t_cursor *cursor, int arg, int *shift);
+int				make_lld(t_cursor *cursor, int arg, int *shift);
+int				make_lldi(t_cursor *cursor, int arg, int *shift);
+int				make_lfork(t_cursor *cursor, int arg, int *shift);
+int				make_aff(t_cursor *cursor, int arg, int *shift);
+
 static t_op    g_op_tab[16] =
 {
-	{"live", 1, {T_DIR}, 0, 4, 0},
-	{"ld", 2, {T_DIR | T_IND, T_REG}, 1, 4, 0},
-	{"st", 2, {T_REG, T_IND | T_REG}, 1, 4, 0},
-	{"add", 3, {T_REG, T_REG, T_REG}, 1, 4, 0},
-	{"sub", 3, {T_REG, T_REG, T_REG}, 1, 4, 0},
-	{"and", 3, {T_REG | T_DIR | T_IND, T_REG | T_IND | T_DIR, T_REG}, 1, 4, 0},
-	{"or", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 1, 4, 0},
-	{"xor", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 1, 4, 0},
-	{"zjmp", 1, {T_DIR}, 0, 2, 0},
-	{"ldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2, 0},
-	{"sti", 3, {T_REG, T_REG | T_DIR | T_IND, T_DIR | T_REG}, 1, 2, 0},
-	{"fork", 1, {T_DIR}, 0, 2, 0},
-	{"lld", 2, {T_DIR | T_IND, T_REG}, 1, 4, 0},
-	{"lldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2, 0},
-	{"lfork", 1, {T_DIR}, 0, 2, 0},
-	{"aff", 1, {T_REG}, 1, 4, 0}
+	{"live", 1, {T_DIR}, 0, 4, make_live},
+	{"ld", 2, {T_DIR | T_IND, T_REG}, 1, 4, make_ld},
+	{"st", 2, {T_REG, T_IND | T_REG}, 1, 4, make_st},
+	{"add", 3, {T_REG, T_REG, T_REG}, 1, 4, make_add},
+	{"sub", 3, {T_REG, T_REG, T_REG}, 1, 4, make_sub},
+	{"and", 3, {T_REG | T_DIR | T_IND, T_REG | T_IND | T_DIR, T_REG}, 1, 4, make_and},
+	{"or", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 1, 4, make_or},
+	{"xor", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 1, 4, make_xor},
+	{"zjmp", 1, {T_DIR}, 0, 2, make_zjmp},
+	{"ldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2, make_ldi},
+	{"sti", 3, {T_REG, T_REG | T_DIR | T_IND, T_DIR | T_REG}, 1, 2, make_sti},
+	{"fork", 1, {T_DIR}, 0, 2, make_fork},
+	{"lld", 2, {T_DIR | T_IND, T_REG}, 1, 4, make_lld},
+	{"lldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2, make_lldi},
+	{"lfork", 1, {T_DIR}, 0, 2, make_lfork},
+	{"aff", 1, {T_REG}, 1, 4, make_aff}
 };
 
 static int		g_op_tab_time[16]= {10, 5, 5, 10, 10, 6, 6, 6, 20, 25, 25, 800, 10, 50, 1000, 2};
@@ -105,14 +124,15 @@ static int		g_op_tab_time[16]= {10, 5, 5, 10, 10, 6, 6, 6, 20, 25, 25, 800, 10, 
 
 //for cyrcles
  t_player		*g_last_player;
- uint_t			g_current_cyrcle;
+ long			g_current_cyrcle;
  int			g_cycles_to_die;
- uint_t			g_live_per_cyrcle;
- uint_t			g_check_amount;//количество проведенных проверок
+ int			g_live_per_cyrcle;
+ int			g_check_amount;//количество проведенных проверок
 
  int			g_dump;
  bool			g_vizo;
-
+ char			g_vflag;
+ bool			g_aflag;
 
 t_header		*init_header(uint_t magic, char *prog_name, uint_t prog_size, char *comment);
 t_player		*init_player(t_header *header, char *code);
@@ -126,7 +146,9 @@ void			main_free(void);
 
 void			buttle(void);
 void			print_map(void);
+void            print_players(void);
+void            cursor_move(t_cursor *cursor, int shift);
 void			help(char *name);
-void			intro(int amount_players);
+void			intro(int amount_players, t_list **poor_players);
 
 #endif

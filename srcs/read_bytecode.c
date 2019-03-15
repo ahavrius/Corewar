@@ -53,36 +53,13 @@ static char	*bytecode_to_char(int file, size_t size)
 	return (line);
 }
 
-static uint_t	choose_num(uint_t number)
-{
-	static uint_t	occup[MAX_PLAYERS];
-	int				i;
-
-	i = 0;
-	if (number > MAX_PLAYERS)
-		drop_error(ERROR_PLAYERNUMBER);
-	if (number == 0)
-	{
-		while (i < MAX_PLAYERS && occup[i] != 0)
-			i++;
-		if (i == MAX_PLAYERS)
-			drop_error(ERROR_PLAYERNUMBER);
-		occup[i] = 1;
-		return (i + 1);
-	}
-	if (occup[number - 1] == 1)
-		drop_error(ERROR_DOUBLEPLAYERS);
-	occup[number - 1] = 1;
-	return (number);
-}
-
 t_player	*parce_bytecode(int file, uint_t number)
 { 
 	t_header	*header;
 
 	if (bytecode_to_uint(file, 4) != COREWAR_EXEC_MAGIC)
 		drop_error(ERROR_MAGICNUMBER);
-	header = init_header(choose_num(number), NULL, 0, NULL);
+	header = init_header(number, NULL, 0, NULL);
 	header->prog_name = bytecode_to_char(file, PROG_NAME_LENGTH);
 	if (bytecode_to_uint(file, 4) != 0)
 		drop_error(ERROR_NULLFORMAT);
