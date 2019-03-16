@@ -12,7 +12,6 @@
 
 #include "vm.h"
 
-
 void	cursor_move(t_cursor *cursor, int shift)
 {
 	int		old_place;
@@ -24,16 +23,6 @@ void	cursor_move(t_cursor *cursor, int shift)
 	while (++i < shift)
 		ft_printf("%02x ", g_arena[(old_place + i) % MEM_SIZE]);
 	ft_printf("\n");
-}
-
-void	help(char *name)
-{
-	ft_printf("Usage: %s [-v | - d N] [-n N ]  <champion1.cor> <...>\n", name);
-	ft_printf("###########################################################\n");
-	ft_printf("    -dump N   : Dumps memory after N cycles then exits\n");
-	ft_printf("    -v        : Ncurses output mode\n");
-	ft_printf("    -n        : force define number of player\n");
-	exit(0);
 }
 
 static void	choose_num(int amount_players, t_list **poor_players)
@@ -105,12 +94,18 @@ void	print_map(void)
 void	print_players(void)
 {
     int		i;
+    t_cursor *cursor;
 
     i = -1;
+
     while (g_all_cursor->next)
     {
-        ft_printf("id - %d\n", ((t_cursor *)g_all_cursor->content)->id);
+        cursor = (t_cursor *)g_all_cursor->content;
+        ft_printf("id - %d value - %02x, %02x %02x %02x %02x, place - %06p d - %d\n", cursor->id,
+                  g_arena[cursor->place], g_arena[cursor->place + 1],
+                  g_arena[cursor->place + 2], g_arena[cursor->place + 3],
+                  g_arena[cursor->place + 4], cursor->place, cursor->delay);
         g_all_cursor = g_all_cursor->next;
     }
-
+    ft_printf("modulo - %hd\n", -32760 % MEM_SIZE);
 }

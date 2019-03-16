@@ -30,14 +30,15 @@ static void	run_one_cursor(t_list *l_cursor)
 		return ;
 	//if (cursor->op == g_arena[cursor->place] && cursor->op > 0 && cursor->op <= 16)
 	if (cursor->op > 0 && cursor->op <= 16)
+	//if (g_arena[cursor->place] > 0 && g_arena[cursor->place] <= 16)
 	{
 		arg = 0;
 		if (g_op_tab[cursor->op - 1].flag)
-			arg = g_arena[cursor->place + 1];
+			arg = g_arena[(cursor->place + 1) % MEM_SIZE];
 		g_op_tab[cursor->op - 1].func(cursor, arg, &shift);
 		if ((g_vflag & 0x10) && shift)
 			cursor_move(cursor, shift);
-		cursor->place += shift;
+        cursor->place = (cursor->place + shift) % MEM_SIZE;
 	}
 	else
 		cursor->place = (cursor->place + 1) % MEM_SIZE;
@@ -118,6 +119,7 @@ void		buttle(void)
 	if (g_current_cyrcle == g_dump)
 	{
 		print_map();
+     //   print_players();
 		return ;
 	}
 	if (g_last_player != NULL)

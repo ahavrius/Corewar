@@ -12,15 +12,18 @@
 
 #include "vm.h"
 
-static uint_t	atoui_bytecode(const uint8_t *str, size_t size)
+static uint_t	atoui_bytecode(size_t start, size_t size)
 {
+    uint8_t *str;
 	uint_t	res;
 	int			i;
 
+	str = g_arena;
 	res = 0;
 	i = 0;
+	start = (start + MEM_SIZE) % MEM_SIZE;
 	while (size--)
-		res += str[size] << (8 * i++);
+		res += str[(start + size) % MEM_SIZE] << (8 * i++);
 	return (res);
 }
 
@@ -97,20 +100,18 @@ static int		get_val(t_cursor *cursor, int *shift, int dir_size, uchar mask)
 	val = 0;
 	if (mask == 0xc0 || mask == 0x30  || mask == 0x0c)
 	{
-		ind = atoui_bytecode((g_arena + (cursor->place + *shift) % MEM_SIZE), IND_SIZE);
+		ind = atoui_bytecode(((cursor->place + *shift) % MEM_SIZE), IND_SIZE);
 		if (cursor->op == 13)
-			val = atoui_bytecode((g_arena +
-								  (cursor->place + ind) % MEM_SIZE), DIR_SIZE);
+			val = atoui_bytecode(((cursor->place + ind) % MEM_SIZE), DIR_SIZE);
 		else
-			val = atoui_bytecode((g_arena +
-								  (cursor->place + (ind % IDX_MOD)) % MEM_SIZE), DIR_SIZE);
+			val = atoui_bytecode(((cursor->place + (ind % IDX_MOD)) % MEM_SIZE), DIR_SIZE);
 		*shift += IND_SIZE;
         if (g_vflag & 0x04)
             ft_printf(" %d", val);
 	}
 	else if (mask == 0x80 || mask == 0x20 || mask == 0x08)
 	{
-		val = atoui_bytecode((g_arena + (cursor->place + *shift) % MEM_SIZE), dir_size);
+		val = atoui_bytecode(((cursor->place + *shift) % MEM_SIZE), dir_size);
 		*shift += dir_size;
 		if (dir_size == 2)
             val = (short)val;
@@ -137,18 +138,18 @@ static void		write_val(t_cursor *cursor, int *shift, int val, int mask)
 
 	if (mask == 0xc0 || mask == 0x30  || mask == 0x0c)
 	{
-		ind = atoui_bytecode((g_arena + (cursor->place + *shift) % MEM_SIZE), IND_SIZE);
-		g_arena[(cursor->place + (ind % IDX_MOD)) % MEM_SIZE] = val >> 24;
-		g_arena[(cursor->place + (ind % IDX_MOD) + 1) % MEM_SIZE] = val >> 16;
-		g_arena[(cursor->place + (ind % IDX_MOD) + 2) % MEM_SIZE] = val >> 8;
-		g_arena[(cursor->place + (ind % IDX_MOD) + 3) % MEM_SIZE] = val;
+		ind = atoui_bytecode(((cursor->place + *shift) % MEM_SIZE), IND_SIZE);
+		g_arena[(cursor->place + MEM_SIZE + (ind % IDX_MOD)) % MEM_SIZE] = val >> 24;
+		g_arena[(cursor->place + MEM_SIZE + (ind % IDX_MOD) + 1) % MEM_SIZE] = val >> 16;
+		g_arena[(cursor->place + MEM_SIZE + (ind % IDX_MOD) + 2) % MEM_SIZE] = val >> 8;
+		g_arena[(cursor->place + MEM_SIZE + (ind % IDX_MOD) + 3) % MEM_SIZE] = val;
 		*shift += IND_SIZE;
 		if (g_vflag & 0x04)
 			ft_printf(" %d\n", ind);
-		g_arena_color[(cursor->place + (ind % IDX_MOD)) % MEM_SIZE] = cursor->owner;
-		g_arena_color[(cursor->place + (ind % IDX_MOD) + 1) % MEM_SIZE] = cursor->owner;
-		g_arena_color[(cursor->place + (ind % IDX_MOD) + 2) % MEM_SIZE] = cursor->owner;
-		g_arena_color[(cursor->place + (ind % IDX_MOD) + 3) % MEM_SIZE] = cursor->owner;
+		g_arena_color[(cursor->place + MEM_SIZE +  (ind % IDX_MOD)) % MEM_SIZE] = cursor->owner;
+		g_arena_color[(cursor->place + MEM_SIZE + (ind % IDX_MOD) + 1) % MEM_SIZE] = cursor->owner;
+		g_arena_color[(cursor->place + MEM_SIZE + (ind % IDX_MOD) + 2) % MEM_SIZE] = cursor->owner;
+		g_arena_color[(cursor->place + MEM_SIZE + (ind % IDX_MOD) + 3) % MEM_SIZE] = cursor->owner;
 	}
 	else if (mask == 0x40 || mask == 0x10 || mask == 0x04)
 	{
@@ -398,7 +399,7 @@ int				make_zjmp(t_cursor *cursor, int arg, int *shift)
 	// jump on val if carry == 1
 	if (cursor->carry == 1)
 	{
-		cursor->place = (cursor->place + (val % IDX_MOD)) % MEM_SIZE;
+		cursor->place = (cursor->place + MEM_SIZE + (val % IDX_MOD)) % MEM_SIZE;
 		*shift = 0;
 	}
 	if (g_vflag & 0x04)
@@ -425,8 +426,7 @@ int				make_ldi(t_cursor *cursor, int arg, int *shift)
 	val2 = get_val(cursor, shift, 2, arg & 0x30);
 
 	// get the special val3 from -> (cursor->place + ((val1 + val2) % IDX_MOD)) % MEM_SIZE
-	val3 = atoui_bytecode((g_arena +
-						   (cursor->place + ((val1 + val2) % IDX_MOD)) % MEM_SIZE), 4);
+	val3 = atoui_bytecode(((cursor->place + ((val1 + val2) % IDX_MOD)) % MEM_SIZE), 4);
 
 
 	// write val3 into arg3
@@ -460,15 +460,15 @@ int				make_sti(t_cursor *cursor, int arg, int *shift)
     if (g_vflag & 0x04)
         ft_printf("\n%8| -> store to %d + %d = %d (with pc and mod %d)\n",
                   val2, val3, val2 + val3, cursor->place + ((val2 + val3) % IDX_MOD));
-	g_arena[(cursor->place + ((val2 + val3) % IDX_MOD)) % MEM_SIZE] = val1 >> 24;
-	g_arena[(cursor->place + ((val2 + val3) % IDX_MOD) + 1) % MEM_SIZE] = val1 >> 16;
-	g_arena[(cursor->place + ((val2 + val3) % IDX_MOD) + 2) % MEM_SIZE] = val1 >> 8;
-	g_arena[(cursor->place + ((val2 + val3) % IDX_MOD) + 3) % MEM_SIZE] = val1;
+	g_arena[(cursor->place + MEM_SIZE + ((val2 + val3) % IDX_MOD)) % MEM_SIZE] = val1 >> 24;
+	g_arena[(cursor->place + MEM_SIZE + ((val2 + val3) % IDX_MOD) + 1) % MEM_SIZE] = val1 >> 16;
+	g_arena[(cursor->place + MEM_SIZE + ((val2 + val3) % IDX_MOD) + 2) % MEM_SIZE] = val1 >> 8;
+	g_arena[(cursor->place + MEM_SIZE + ((val2 + val3) % IDX_MOD) + 3) % MEM_SIZE] = val1;
 
-	g_arena_color[(cursor->place + ((val2 + val3) % IDX_MOD)) % MEM_SIZE] = cursor->owner;
-	g_arena_color[(cursor->place + ((val2 + val3) % IDX_MOD) + 1) % MEM_SIZE] = cursor->owner;
-	g_arena_color[(cursor->place + ((val2 + val3) % IDX_MOD) + 2) % MEM_SIZE] = cursor->owner;
-	g_arena_color[(cursor->place + ((val2 + val3) % IDX_MOD) + 3) % MEM_SIZE] = cursor->owner;
+	g_arena_color[(cursor->place + MEM_SIZE + ((val2 + val3) % IDX_MOD)) % MEM_SIZE] = cursor->owner;
+	g_arena_color[(cursor->place + MEM_SIZE + ((val2 + val3) % IDX_MOD) + 1) % MEM_SIZE] = cursor->owner;
+	g_arena_color[(cursor->place + MEM_SIZE + ((val2 + val3) % IDX_MOD) + 2) % MEM_SIZE] = cursor->owner;
+	g_arena_color[(cursor->place + MEM_SIZE + ((val2 + val3) % IDX_MOD) + 3) % MEM_SIZE] = cursor->owner;
 	return (*shift);
 }
 
@@ -542,8 +542,7 @@ int				make_lldi(t_cursor *cursor, int arg, int *shift)
 	val2 = get_val(cursor, shift, 2, arg & 0x30);
 
 	// get the special val3 from -> (cursor->place + ((val1 + val2) % IDX_MOD)) % MEM_SIZE
-	val3 = atoui_bytecode((g_arena +
-						   (cursor->place + (val1 + val2)) % MEM_SIZE), 4);
+	val3 = atoui_bytecode(((cursor->place + (val1 + val2)) % MEM_SIZE), 4);
 
 	// write val3 into arg3
 	write_val(cursor, shift, val3, arg & 0x0c);

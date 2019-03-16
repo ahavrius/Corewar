@@ -90,7 +90,10 @@ static int	read_flags(int argc, char **argv)
 			i += 2;
 		}
 		if (ft_strcmp(argv[i], "-a") == 0)
+		{
+			i++;
 			g_aflag = 1;
+		}
 	}
 	return (i);
 }
@@ -103,15 +106,10 @@ void		main_read(int argc, char **argv)
 
 	poor_players = NULL;
 	if (argc == 1)
-	{
 		help(argv[0]);
-		exit(0);
-	}
 	shift = read_flags(argc, argv);
 	if (shift == argc)
 		drop_error(ERROR_NOFILE);
 	amount_players = read_players(argc - shift, &argv[shift], &poor_players);
-
-
 	intro(amount_players, &poor_players);
 }
