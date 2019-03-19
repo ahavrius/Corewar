@@ -104,24 +104,24 @@ static t_op			g_op_tab[16] =
 	{"add", 3, {T_REG, T_REG, T_REG}, 1, 4, make_add},
 	{"sub", 3, {T_REG, T_REG, T_REG}, 1, 4, make_sub},
 	{"and", 3, {T_REG | T_DIR | T_IND, T_REG | T_IND | T_DIR, T_REG},
-	1, 4, make_and},
+		1, 4, make_and},
 	{"or", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG},
-	1, 4, make_or},
+		1, 4, make_or},
 	{"xor", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG},
-	1, 4, make_xor},
+		1, 4, make_xor},
 	{"zjmp", 1, {T_DIR}, 0, 2, make_zjmp},
 	{"ldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2, make_ldi},
 	{"sti", 3, {T_REG, T_REG | T_DIR | T_IND, T_DIR | T_REG}, 1, 2, make_sti},
 	{"fork", 1, {T_DIR}, 0, 2, make_fork},
 	{"lld", 2, {T_DIR | T_IND, T_REG}, 1, 4, make_lld},
 	{"lldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG},
-	1, 2, make_lldi},
+		1, 2, make_lldi},
 	{"lfork", 1, {T_DIR}, 0, 2, make_lfork},
 	{"aff", 1, {T_REG}, 1, 4, make_aff}
 };
 
 static int			g_op_tab_time[16] =
-		{10, 5, 5, 10, 10, 6, 6, 6, 20, 25, 25, 800, 10, 50, 1000, 2};
+{10, 5, 5, 10, 10, 6, 6, 6, 20, 25, 25, 800, 10, 50, 1000, 2};
 
 t_uchar				g_arena[MEM_SIZE];
 char				g_arena_color[MEM_SIZE];
