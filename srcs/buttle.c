@@ -104,7 +104,9 @@ void			buttle(void)
 		one_check();
 	if (g_current_cyrcle == g_dump)
 		print_map();
-	else if (g_last_player != NULL)
+	if (g_current_cyrcle == g_dump && g_pflag)
+		print_players();
+	if (g_last_player != NULL)
 		ft_printf("Contestant %d, \"%s\", has won !\n",
 		g_last_player->header->magic, g_last_player->header->prog_name);
 }

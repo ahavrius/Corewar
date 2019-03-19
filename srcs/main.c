@@ -20,5 +20,7 @@ int		main(int argc, char **argv)
 	else
 		buttle();
 	main_free();
+
+	system("leaks -q corewar");
 	return (0);
 }

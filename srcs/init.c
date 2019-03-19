@@ -59,13 +59,14 @@ t_cursor	*init_cursor(t_uint place, int whom)
 
 void		init_map(t_uint place, int whom)
 {
-	int		i;
+	t_uint	i;
 
-	i = -1;
-	while (++i < PLAY_SIZE(whom))
+	i = 0;
+	while (i < PLAY_SIZE(whom))
 	{
 		g_arena[(place + i) % MEM_SIZE] = PLAY_CODE(whom)[i];
 		g_arena_color[(place + i) % MEM_SIZE] = whom + 1;
+		i++;
 	}
 }
 

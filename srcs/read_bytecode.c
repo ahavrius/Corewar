@@ -12,7 +12,7 @@
 
 #include "vm.h"
 
-static t_uint	atoui_bytecode(const uint8_t *str, size_t size)
+static t_uint	atoui_bytecode(const uint8_t *str, int size)
 {
 	t_uint	res;
 	int		i;
@@ -24,10 +24,10 @@ static t_uint	atoui_bytecode(const uint8_t *str, size_t size)
 	return (res);
 }
 
-static t_uint	bytecode_to_uint(int file, size_t size)
+static t_uint	bytecode_to_uint(int file, int size)
 {
 	uint8_t	line[size];
-	size_t	real_size;
+	int		real_size;
 
 	real_size = read(file, line, size);
 	if (real_size == -1)
@@ -37,10 +37,10 @@ static t_uint	bytecode_to_uint(int file, size_t size)
 	return (atoui_bytecode(line, size));
 }
 
-static char		*bytecode_to_char(int file, size_t size)
+static char		*bytecode_to_char(int file, int size)
 {
 	char	*line;
-	size_t	real_size;
+	int		real_size;
 
 	line = ft_strnew(size);
 	if (line == NULL)

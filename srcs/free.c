@@ -14,6 +14,7 @@
 
 static void	del_cursor(void *content, size_t size)
 {
+	size = 0;
 	if (content)
 		free(content);
 	content = NULL;

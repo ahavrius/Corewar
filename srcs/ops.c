@@ -59,7 +59,6 @@ int		make_ld(t_cursor *cursor, int arg, int *shift)
 int		make_st(t_cursor *cursor, int arg, int *shift)
 {
 	int	val;
-	int	reg;
 
 	*shift = 2;
 	if (((arg & 0xf0) != 0x50 && (arg & 0xf0) != 0x70) ||
@@ -74,7 +73,6 @@ int		make_st(t_cursor *cursor, int arg, int *shift)
 
 int		make_add(t_cursor *cursor, int arg, int *shift)
 {
-	int reg;
 	int	val1;
 	int	val2;
 
@@ -95,7 +93,6 @@ int		make_add(t_cursor *cursor, int arg, int *shift)
 
 int		make_sub(t_cursor *cursor, int arg, int *shift)
 {
-	int reg;
 	int	val1;
 	int	val2;
 

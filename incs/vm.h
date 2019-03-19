@@ -38,7 +38,7 @@ typedef char			t_bool;
 # define W_ARENA(p, v)		g_arena[(p + MEM_SIZE + ((v) % IDX_MOD)) % MEM_SIZE]
 # define W_COLOR(p, v) g_arena_color[(p + MEM_SIZE + (v) % IDX_MOD) % MEM_SIZE]
 
-# define IS_NUM(x)			(ft_strlen(x) == ft_striter_bool((x), ft_isdigit))
+# define IS_NUM(x) (ft_strlen(x) == (size_t)ft_striter_bool((x), ft_isdigit))
 # define STR_EQ(str1, str2)	(ft_strcmp(str1, str2) == 0)
 
 # define DUMP				(-1)
@@ -137,6 +137,7 @@ int					g_dump;
 t_bool				g_vizo;
 char				g_vflag;
 t_bool				g_aflag;
+t_bool				g_pflag;
 
 t_header			*init_header(t_uint magic, char *prog_name,
 								t_uint prog_size, char *comment);
@@ -158,6 +159,7 @@ int					get_val(t_cursor *cursor, int *shift,
 void				write_val(t_cursor *cursor, int *shift, int val, int mask);
 
 void				buttle(void);
+void				print_players(void);
 void				print_map(void);
 void				print_v(t_cursor *cursor, int val, int reg, t_uchar mask);
 void				cursor_move(t_cursor *cursor, int shift);

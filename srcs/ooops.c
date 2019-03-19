@@ -47,6 +47,7 @@ int		make_fork(t_cursor *cursor, int arg, int *shift)
 	short		val;
 	int			i;
 
+	(void)arg;
 	if (g_vflag & 0x04)
 		ft_printf("P %4d | %s", cursor->id, g_op_tab[cursor->op - 1].name);
 	i = -1;
@@ -115,6 +116,7 @@ int		make_lfork(t_cursor *cursor, int arg, int *shift)
 	short		val;
 	int			i;
 
+	(void)arg;
 	if (g_vflag & 0x04)
 		ft_printf("P %4d | %s", cursor->id, g_op_tab[cursor->op - 1].name);
 	i = -1;

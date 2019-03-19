@@ -71,14 +71,13 @@ static int	read_flags(int argc, char **argv)
 	i = 0;
 	g_dump = -1;
 	while (++i < argc && (STR_EQ(argv[i], "-dump") || STR_EQ(argv[i], "-v") ||
-						STR_EQ(argv[i], "-vizo") || STR_EQ(argv[i], "-a")))
+STR_EQ(argv[i], "-p") || STR_EQ(argv[i], "-vizo") || STR_EQ(argv[i], "-a")))
 	{
 		if (ft_strcmp(argv[i], "-dump") == 0)
 		{
 			if (i + 1 >= argc || !IS_NUM(argv[i + 1]))
 				drop_error(ERROR_FLAGFORMAT);
 			g_dump = ft_atoi(argv[++i]);
-			i++;
 		}
 		else if (ft_strcmp(argv[i], "-v") == 0)
 		{
@@ -87,8 +86,9 @@ static int	read_flags(int argc, char **argv)
 			g_vflag = ft_atoi(argv[++i]);
 			g_vflag *= (g_vflag >= 0 && g_vflag <= 31);
 		}
-		g_vizo |= (ft_strcmp(argv[i], "-vizo") == 0);
-		g_aflag |= (ft_strcmp(argv[i], "-a") == 0);
+		g_vizo |= STR_EQ(argv[i], "-vizo");
+		g_aflag |= STR_EQ(argv[i], "-a");
+		g_pflag |= STR_EQ(argv[i], "-p");
 	}
 	return (i);
 }

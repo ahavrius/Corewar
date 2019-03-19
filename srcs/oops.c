@@ -79,6 +79,7 @@ int		make_zjmp(t_cursor *cursor, int arg, int *shift)
 {
 	int	val;
 
+	(void)arg;
 	if (g_vflag & 0x04)
 		ft_printf("P %4d | %s", cursor->id, g_op_tab[cursor->op - 1].name);
 	*shift = 1;

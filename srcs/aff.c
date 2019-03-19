@@ -45,9 +45,11 @@ void	print_players(void)
 {
 	int			i;
 	t_cursor	*cursor;
+	t_list		*list;
 
 	i = -1;
-	while (g_all_cursor->next)
+	list = g_all_cursor;
+	while (list)
 	{
 		cursor = (t_cursor *)g_all_cursor->content;
 		ft_printf(
@@ -55,7 +57,6 @@ void	print_players(void)
 			cursor->id, g_arena[cursor->place], g_arena[cursor->place + 1],
 					g_arena[cursor->place + 2], g_arena[cursor->place + 3],
 					g_arena[cursor->place + 4], cursor->place, cursor->delay);
-		g_all_cursor = g_all_cursor->next;
+		list = list->next;
 	}
-	ft_printf("modulo - %hd\n", -32760 % MEM_SIZE);
 }

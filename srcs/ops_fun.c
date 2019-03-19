@@ -58,6 +58,7 @@ int				valid_reg(t_cursor *cursor, int arg, int dir_size, int *shift)
 	int	reg;
 	int	skip;
 
+	reg = 0;
 	if ((arg & 0xc0) == 0x40 && (g_op_tab[cursor->op - 1].args_types[0] & 0x01))
 	{
 		reg = g_arena[(cursor->place + *shift) % MEM_SIZE];
@@ -89,14 +90,14 @@ int				get_val(t_cursor *cursor, int *shift,
 						int dir_size, t_uchar mask)
 {
 	int		val;
-	short	ind;
 	int		reg;
 
+	reg = 0;
 	if (mask == 0xc0 || mask == 0x30 || mask == 0x0c)
 	{
-		ind = xtoi_bytecode(((cursor->place + *shift) % MEM_SIZE), IND_SIZE);
-		ind = (cursor->op == 13) ? ind : ind % IDX_MOD;
-		val = xtoi_bytecode(((cursor->place + ind) % MEM_SIZE), DIR_SIZE);
+		val = xtoi_bytecode(((cursor->place + *shift) % MEM_SIZE), IND_SIZE);
+		val = (cursor->op == 13) ? val : val % IDX_MOD;
+		val = xtoi_bytecode(((cursor->place + val) % MEM_SIZE), DIR_SIZE);
 		*shift += IND_SIZE;
 	}
 	else if (mask == 0x80 || mask == 0x20 || mask == 0x08)
@@ -106,7 +107,7 @@ int				get_val(t_cursor *cursor, int *shift,
 		if (dir_size == 2)
 			val = (short)val;
 	}
-	else if (mask == 0x40 || mask == 0x10 || mask == 0x04)
+	else
 	{
 		reg = g_arena[(cursor->place + (*shift)++) % MEM_SIZE];
 		val = cursor->reg[reg - 1];
@@ -128,7 +129,7 @@ void			write_val(t_cursor *cursor, int *shift, int val, int mask)
 		W_ARENA(cursor->place + 2, ind) = val >> 8;
 		W_ARENA(cursor->place + 3, ind) = val;
 		*shift += IND_SIZE;
-		print_v(cursor, ind, reg, mask);
+		print_v(cursor, ind, 0, mask);
 		W_COLOR(cursor->place, ind) = cursor->owner;
 		W_COLOR(cursor->place + 1, ind) = cursor->owner;
 		W_COLOR(cursor->place + 2, ind) = cursor->owner;

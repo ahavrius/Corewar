@@ -16,12 +16,14 @@ void	drop_error(char *text_error)
 {
 	ft_printf("%s\n", text_error);
 	main_free();
+
+	system("leaks -q corewar");
 	exit(0);
 }
 
 void	help(char *name)
 {
-	ft_printf("Usage: %s [-vizo | -a -dump N -v N] [-n N ]  <  .cor>\n", name);
+	ft_printf("Usage: %s [-vizo | -a -p -dump N -v N] [-n N ] <.cor>\n", name);
 	ft_printf("###########################################################\n");
 	ft_printf("");
 	ft_printf("    -a        : Prints output from 'aff'\n");
@@ -33,8 +35,11 @@ void	help(char *name)
 	ft_printf("                - 8 : Show deaths\n");
 	ft_printf("                - 16 : Show PC movements\n");
 	ft_printf("    -dump N   : Dumps memory after N cycles then exits\n");
+	ft_printf("    -p        : Shows alive cursors if dump is active\n");
 	ft_printf("    -vizo     : Ncurses output mode\n");
 	ft_printf("    -n        : Force define number of player\n");
 	ft_printf("###########################################################\n");
+
+	system("leaks -q corewar");
 	exit(0);
 }
