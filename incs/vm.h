@@ -14,21 +14,17 @@
 # define VM_H
 
 # include "libft.h"
-#include "vm_error.h"
+# include "vm_error.h"
 # include "op.h"
 # include <fcntl.h>
 # include <unistd.h>
 # include <stdint.h>
 # include <stdlib.h>
 # include <limits.h>
-/*
-#include <sys/types.h>
-#include <sys/stat.h>
-*/
 
-# define uchar			unsigned char
-# define bool			char
-# define uint_t			unsigned int
+typedef unsigned char	t_uchar;
+typedef unsigned int	t_uint;
+typedef char			t_bool;
 
 # define PLAY_HEAD(i)		(g_array_players[(i)]->header)
 # define PLAY_NAME(i)		(g_array_players[(i)]->header->prog_name)
@@ -39,116 +35,133 @@
 # define PLAYER(i)			(g_array_players[(i) - 1])
 # define IF_FREE(x)			if (x) free(x)
 
+# define W_ARENA(p, v)		g_arena[(p + MEM_SIZE + ((v) % IDX_MOD)) % MEM_SIZE]
+# define W_COLOR(p, v) g_arena_color[(p + MEM_SIZE + (v) % IDX_MOD) % MEM_SIZE]
+
+# define IS_NUM(x)			(ft_strlen(x) == ft_striter_bool((x), ft_isdigit))
+# define STR_EQ(str1, str2)	(ft_strcmp(str1, str2) == 0)
 
 # define DUMP				(-1)
 
-typedef struct			s_header
+typedef struct		s_header
 {
-	uint_t				magic;
-	char				*prog_name;
-	uint_t				prog_size;
-	char				*comment;
-}						t_header;
+	t_uint			magic;
+	char			*prog_name;
+	t_uint			prog_size;
+	char			*comment;
+}					t_header;
 
-typedef struct			s_player
+typedef struct		s_player
 {
-	t_header			*header;
-	char				*code;
-}						t_player;
+	t_header		*header;
+	char			*code;
+}					t_player;
 
-typedef struct			s_cursor
+typedef struct		s_cursor
 {
-	uint_t				id;
-	uchar				op;
-	bool				carry;
-	uint_t				place;
-	uint_t				last_live;
-	uint_t				delay;
-	uint_t              owner;
-	int32_t				reg[REG_NUMBER];
-}						t_cursor;
+	t_uint			id;
+	t_uchar			op;
+	t_bool			carry;
+	t_uint			place;
+	t_uint			last_live;
+	t_uint			delay;
+	t_uchar			owner;
+	int32_t			reg[REG_NUMBER];
+}					t_cursor;
 
-typedef struct	s_op
+typedef struct		s_op
 {
-	char		*name;
-	uchar		args_num;
-	uchar		args_types[3];
-	bool		flag;
-	uchar		t_dir_size;
-	int			(*func)(t_cursor *, int, int *);
-}				t_op;
+	char			*name;
+	t_uchar			args_num;
+	t_uchar			args_types[3];
+	t_bool			flag;
+	t_uchar			t_dir_size;
+	int				(*func)(t_cursor *, int, int *);
+}					t_op;
 
-int				make_live(t_cursor *cursor, int arg, int *shift);
-int				make_ld(t_cursor *cursor, int arg, int *shift);
-int				make_st(t_cursor *cursor, int arg, int *shift);
-int				make_add(t_cursor *cursor, int arg, int *shift);
-int				make_sub(t_cursor *cursor, int arg, int *shift);
-int				make_and(t_cursor *cursor, int arg, int *shift);
-int				make_or(t_cursor *cursor, int arg, int *shift);
-int				make_xor(t_cursor *cursor, int arg, int *shift);
-int				make_zjmp(t_cursor *cursor, int arg, int *shift);
-int				make_ldi(t_cursor *cursor, int arg, int *shift);
-int				make_sti(t_cursor *cursor, int arg, int *shift);
-int				make_fork(t_cursor *cursor, int arg, int *shift);
-int				make_lld(t_cursor *cursor, int arg, int *shift);
-int				make_lldi(t_cursor *cursor, int arg, int *shift);
-int				make_lfork(t_cursor *cursor, int arg, int *shift);
-int				make_aff(t_cursor *cursor, int arg, int *shift);
+int					make_live(t_cursor *cursor, int arg, int *shift);
+int					make_ld(t_cursor *cursor, int arg, int *shift);
+int					make_st(t_cursor *cursor, int arg, int *shift);
+int					make_add(t_cursor *cursor, int arg, int *shift);
+int					make_sub(t_cursor *cursor, int arg, int *shift);
+int					make_and(t_cursor *cursor, int arg, int *shift);
+int					make_or(t_cursor *cursor, int arg, int *shift);
+int					make_xor(t_cursor *cursor, int arg, int *shift);
+int					make_zjmp(t_cursor *cursor, int arg, int *shift);
+int					make_ldi(t_cursor *cursor, int arg, int *shift);
+int					make_sti(t_cursor *cursor, int arg, int *shift);
+int					make_fork(t_cursor *cursor, int arg, int *shift);
+int					make_lld(t_cursor *cursor, int arg, int *shift);
+int					make_lldi(t_cursor *cursor, int arg, int *shift);
+int					make_lfork(t_cursor *cursor, int arg, int *shift);
+int					make_aff(t_cursor *cursor, int arg, int *shift);
 
-static t_op    g_op_tab[16] =
+static t_op			g_op_tab[16] =
 {
 	{"live", 1, {T_DIR}, 0, 4, make_live},
 	{"ld", 2, {T_DIR | T_IND, T_REG}, 1, 4, make_ld},
 	{"st", 2, {T_REG, T_IND | T_REG}, 1, 4, make_st},
 	{"add", 3, {T_REG, T_REG, T_REG}, 1, 4, make_add},
 	{"sub", 3, {T_REG, T_REG, T_REG}, 1, 4, make_sub},
-	{"and", 3, {T_REG | T_DIR | T_IND, T_REG | T_IND | T_DIR, T_REG}, 1, 4, make_and},
-	{"or", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 1, 4, make_or},
-	{"xor", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 1, 4, make_xor},
+	{"and", 3, {T_REG | T_DIR | T_IND, T_REG | T_IND | T_DIR, T_REG},
+	1, 4, make_and},
+	{"or", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG},
+	1, 4, make_or},
+	{"xor", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG},
+	1, 4, make_xor},
 	{"zjmp", 1, {T_DIR}, 0, 2, make_zjmp},
 	{"ldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2, make_ldi},
 	{"sti", 3, {T_REG, T_REG | T_DIR | T_IND, T_DIR | T_REG}, 1, 2, make_sti},
 	{"fork", 1, {T_DIR}, 0, 2, make_fork},
 	{"lld", 2, {T_DIR | T_IND, T_REG}, 1, 4, make_lld},
-	{"lldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2, make_lldi},
+	{"lldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG},
+	1, 2, make_lldi},
 	{"lfork", 1, {T_DIR}, 0, 2, make_lfork},
 	{"aff", 1, {T_REG}, 1, 4, make_aff}
 };
 
-static int		g_op_tab_time[16]= {10, 5, 5, 10, 10, 6, 6, 6, 20, 25, 25, 800, 10, 50, 1000, 2};
+static int			g_op_tab_time[16] =
+		{10, 5, 5, 10, 10, 6, 6, 6, 20, 25, 25, 800, 10, 50, 1000, 2};
 
- uchar			g_arena[MEM_SIZE];
- char			g_arena_color[MEM_SIZE];
- t_player		*g_array_players[MAX_PLAYERS];
- t_list			*g_all_cursor;
+t_uchar				g_arena[MEM_SIZE];
+char				g_arena_color[MEM_SIZE];
+t_player			*g_array_players[MAX_PLAYERS];
+t_list				*g_all_cursor;
+t_player			*g_last_player;
+long				g_current_cyrcle;
+int					g_cycle_to_die;
+int					g_live_per_cycle;
+int					g_check_amount;
 
-//for cyrcles
- t_player		*g_last_player;
- long			g_current_cyrcle;
- int			g_cycles_to_die;
- int			g_live_per_cyrcle;
- int			g_check_amount;//количество проведенных проверок
+int					g_dump;
+t_bool				g_vizo;
+char				g_vflag;
+t_bool				g_aflag;
 
- int			g_dump;
- bool			g_vizo;
- char			g_vflag;
- bool			g_aflag;
+t_header			*init_header(t_uint magic, char *prog_name,
+								t_uint prog_size, char *comment);
+t_player			*init_player(t_header *header, char *code);
+t_cursor			*init_cursor(t_uint place, int whom);
+void				init_map(t_uint place, int whom);
+void				init_global(void);
 
-t_header		*init_header(uint_t magic, char *prog_name, uint_t prog_size, char *comment);
-t_player		*init_player(t_header *header, char *code);
-t_cursor		*init_cursor(uint_t place, int whom);
-void			init_map(uint_t place, int whom);
-void			init_global(void);
+t_player			*parce_bytecode(int file, t_uint number);
+void				main_read(int argc, char **argv);
+void				main_free(void);
 
-t_player		*parce_bytecode(int file, uint_t number);
-void			main_read(int argc, char **argv);
-void			main_free(void);
+t_uint				xtoi_bytecode(size_t start, size_t size);
+int					skip_args(int arg, int dir_size, int max_arg);
+int					valid_reg(t_cursor *cursor, int arg,
+												int dir_size, int *shift);
+int					get_val(t_cursor *cursor, int *shift,
+												int dir_size, t_uchar mask);
+void				write_val(t_cursor *cursor, int *shift, int val, int mask);
 
-void			buttle(void);
-void			print_map(void);
-void            print_players(void);
-void            cursor_move(t_cursor *cursor, int shift);
-void			help(char *name);
-void			intro(int amount_players, t_list **poor_players);
+void				buttle(void);
+void				print_map(void);
+void				print_v(t_cursor *cursor, int val, int reg, t_uchar mask);
+void				cursor_move(t_cursor *cursor, int shift);
+void				help(char *name);
+void				intro(int amount_players, t_list **poor_players);
 
 #endif

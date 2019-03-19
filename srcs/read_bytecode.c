@@ -12,10 +12,10 @@
 
 #include "vm.h"
 
-static uint_t	atoui_bytecode(const uint8_t *str, size_t size)
+static t_uint	atoui_bytecode(const uint8_t *str, size_t size)
 {
-	uint_t	res;
-	int			i;
+	t_uint	res;
+	int		i;
 
 	res = 0;
 	i = 0;
@@ -24,7 +24,7 @@ static uint_t	atoui_bytecode(const uint8_t *str, size_t size)
 	return (res);
 }
 
-static uint_t	bytecode_to_uint(int file, size_t size)
+static t_uint	bytecode_to_uint(int file, size_t size)
 {
 	uint8_t	line[size];
 	size_t	real_size;
@@ -37,7 +37,7 @@ static uint_t	bytecode_to_uint(int file, size_t size)
 	return (atoui_bytecode(line, size));
 }
 
-static char	*bytecode_to_char(int file, size_t size)
+static char		*bytecode_to_char(int file, size_t size)
 {
 	char	*line;
 	size_t	real_size;
@@ -53,8 +53,8 @@ static char	*bytecode_to_char(int file, size_t size)
 	return (line);
 }
 
-t_player	*parce_bytecode(int file, uint_t number)
-{ 
+t_player		*parce_bytecode(int file, t_uint number)
+{
 	t_header	*header;
 
 	if (bytecode_to_uint(file, 4) != COREWAR_EXEC_MAGIC)

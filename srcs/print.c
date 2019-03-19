@@ -12,24 +12,11 @@
 
 #include "vm.h"
 
-void	cursor_move(t_cursor *cursor, int shift)
-{
-	int		old_place;
-	int		i;
-
-	old_place = cursor->place;
-	ft_printf("ADV %d (%06p -> %06p) ", shift, old_place, old_place + shift);
-	i = -1;
-	while (++i < shift)
-		ft_printf("%02x ", g_arena[(old_place + i) % MEM_SIZE]);
-	ft_printf("\n");
-}
-
 static void	choose_num(int amount_players, t_list **poor_players)
 {
 	int			i;
 	t_list		*head;
-	t_player	*cur_player; 
+	t_player	*cur_player;
 
 	i = amount_players - 1;
 	while (++i < MAX_PLAYERS)
@@ -49,7 +36,7 @@ static void	choose_num(int amount_players, t_list **poor_players)
 	ft_lstdel(poor_players, NULL);
 }
 
-void	intro(int amount_players, t_list **poor_players)
+void		intro(int amount_players, t_list **poor_players)
 {
 	int		i;
 	int		j;
@@ -59,19 +46,19 @@ void	intro(int amount_players, t_list **poor_players)
 	*poor_players = ft_lst_reverse(*poor_players);
 	choose_num(amount_players, poor_players);
 	ft_printf("Introducing contestants...\n");
-	while (++i < MAX_PLAYERS)
-		if (g_array_players[i] != NULL)
-		{
-			ft_printf("* Player %d, weighing %d bytes, \"%s\" (\"%s\") !\n",
-				PLAY_ID(i), PLAY_SIZE(i), PLAY_NAME(i), PLAY_COMMENT(i));
-			init_map(j * MEM_SIZE / amount_players, i);
-			ft_lstadd(&g_all_cursor, ft_lstnew_link(init_cursor(j * MEM_SIZE / amount_players, i), 8));
-			j++;
-		}
+	while (++i < amount_players)
+	{
+		ft_printf("* Player %d, weighing %d bytes, \"%s\" (\"%s\") !\n",
+			PLAY_ID(i), PLAY_SIZE(i), PLAY_NAME(i), PLAY_COMMENT(i));
+		init_map(j * MEM_SIZE / amount_players, i);
+		ft_lstadd(&g_all_cursor, ft_lstnew_link(init_cursor(
+								j * MEM_SIZE / amount_players, i), 8));
+		j++;
+	}
 	init_global();
 }
 
-void	print_map(void)
+void		print_map(void)
 {
 	int		i;
 	int		flag;
@@ -85,27 +72,27 @@ void	print_map(void)
 		{
 			ft_printf("%02x ", g_arena[i]);
 			i++;
-			flag = i % 64;
+			flag = i % 32;
 		}
 		ft_printf("\n");
 	}
 }
 
-void	print_players(void)
+void		print_v(t_cursor *cursor, int val, int reg, t_uchar mask)
 {
-    int		i;
-    t_cursor *cursor;
+	t_uchar	ch;
 
-    i = -1;
-
-    while (g_all_cursor->next)
-    {
-        cursor = (t_cursor *)g_all_cursor->content;
-        ft_printf("id - %d value - %02x, %02x %02x %02x %02x, place - %06p d - %d\n", cursor->id,
-                  g_arena[cursor->place], g_arena[cursor->place + 1],
-                  g_arena[cursor->place + 2], g_arena[cursor->place + 3],
-                  g_arena[cursor->place + 4], cursor->place, cursor->delay);
-        g_all_cursor = g_all_cursor->next;
-    }
-    ft_printf("modulo - %hd\n", -32760 % MEM_SIZE);
+	ch = (t_uchar)~mask;
+	if (g_vflag & 0x04)
+	{
+		if (mask == 0x40 || mask == 0x10 || mask == 0x04)
+		{
+			if (g_op_tab[cursor->op - 1].args_types[(ch - 0xbf) / 30] == 1)
+				ft_printf(" r%d", reg);
+			else
+				ft_printf(" %d", val);
+		}
+		else
+			ft_printf(" %d", val);
+	}
 }

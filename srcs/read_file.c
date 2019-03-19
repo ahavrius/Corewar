@@ -26,7 +26,7 @@ static void	read_file(char *file_name, int player_number, t_list **poor_players)
 	cur_player = parce_bytecode(file, player_number);
 	if (player_number == INT_MAX)
 		ft_lstadd(poor_players, ft_lstnew_link(cur_player, 2));
-	else if	(g_array_players[player_number - 1])
+	else if (g_array_players[player_number - 1])
 		drop_error(ERROR_DOUBLEPLAYERS);
 	else
 		g_array_players[player_number - 1] = cur_player;
@@ -43,6 +43,8 @@ static int	read_players(int argc, char **argv, t_list **poor_players)
 
 	i = -1;
 	amount_players = 0;
+	if (argc > MAX_PLAYERS)
+		drop_error(ERROR_PLAYERNUMBER);
 	while (++i < argc)
 	{
 		player_number = INT_MAX;
@@ -53,7 +55,8 @@ static int	read_players(int argc, char **argv, t_list **poor_players)
 			player_number = ft_atoi(argv[i + 1]);
 			i += 2;
 		}
-		if (player_number != INT_MAX && (player_number <= 0 || player_number > MAX_PLAYERS))
+		if (player_number != INT_MAX &&
+				(player_number <= 0 || player_number > MAX_PLAYERS))
 			drop_error(ERROR_PLAYERNUMBER);
 		read_file(argv[i], player_number, poor_players);
 		amount_players++;
@@ -65,35 +68,27 @@ static int	read_flags(int argc, char **argv)
 {
 	int		i;
 
-	i = 1;
+	i = 0;
 	g_dump = -1;
-	while (i < argc && (ft_strcmp(argv[i], "-dump") == 0 || ft_strcmp(argv[i], "-v") == 0 || ft_strcmp(argv[i], "-vizo") == 0 || ft_strcmp(argv[i], "-a") == 0))
+	while (++i < argc && (STR_EQ(argv[i], "-dump") || STR_EQ(argv[i], "-v") ||
+						STR_EQ(argv[i], "-vizo") || STR_EQ(argv[i], "-a")))
 	{
 		if (ft_strcmp(argv[i], "-dump") == 0)
 		{
-			if (i + 1 >= argc || ft_strlen(argv[i + 1]) != ft_striter_bool(argv[i + 1], ft_isdigit))
+			if (i + 1 >= argc || !IS_NUM(argv[i + 1]))
 				drop_error(ERROR_FLAGFORMAT);
-			g_dump = ft_atoi(argv[i + 1]);
-			i += 2;
-		}
-		if (ft_strcmp(argv[i], "-vizo") == 0)
-		{
-			g_vizo = 1;
+			g_dump = ft_atoi(argv[++i]);
 			i++;
 		}
-		if (ft_strcmp(argv[i], "-v") == 0)
+		else if (ft_strcmp(argv[i], "-v") == 0)
 		{
-			if (i + 1 >= argc || ft_strlen(argv[i + 1]) != ft_striter_bool(argv[i + 1], ft_isdigit))
+			if (i + 1 >= argc || !IS_NUM(argv[i + 1]))
 				drop_error(ERROR_FLAGFORMAT);
-			g_vflag = ft_atoi(argv[i + 1]);
+			g_vflag = ft_atoi(argv[++i]);
 			g_vflag *= (g_vflag >= 0 && g_vflag <= 31);
-			i += 2;
 		}
-		if (ft_strcmp(argv[i], "-a") == 0)
-		{
-			i++;
-			g_aflag = 1;
-		}
+		g_vizo |= (ft_strcmp(argv[i], "-vizo") == 0);
+		g_aflag |= (ft_strcmp(argv[i], "-a") == 0);
 	}
 	return (i);
 }

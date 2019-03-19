@@ -24,7 +24,6 @@
 # define ERROR_FLAGFORMAT "ERROR : wrong flag format"
 # define ERROR_FILECOR "ERROR : invalid file extension"
 # define ERROR_TOOLONG "ERROR : file is too long"
-//Error: File champs/42.cor has too large a code (993 bytes > 682 bytes) ;(
 # define ERROR_CODESIZE "ERROR : file has too large a code"
 
 void	drop_error(char *text_error);

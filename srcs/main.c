@@ -12,16 +12,13 @@
 
 #include "vm.h"
 
-
-int main(int argc, char **argv)
+int		main(int argc, char **argv)
 {
 	main_read(argc, argv);
-
 	if (g_dump == 0)
 		print_map();
 	else
 		buttle();
 	main_free();
-	//system("leaks corewar");
 	return (0);
 }

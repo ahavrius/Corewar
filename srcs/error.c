@@ -15,19 +15,17 @@
 void	drop_error(char *text_error)
 {
 	ft_printf("%s\n", text_error);
-
 	main_free();
-	//system("leaks corewar");
 	exit(0);
 }
 
 void	help(char *name)
 {
-	ft_printf("Usage: %s [-vizo | -a -dump N -v N] [-n N ]  <champion1.cor> <...>\n", name);
+	ft_printf("Usage: %s [-vizo | -a -dump N -v N] [-n N ]  <  .cor>\n", name);
 	ft_printf("###########################################################\n");
 	ft_printf("");
 	ft_printf("    -a        : Prints output from 'aff'\n");
-	ft_printf("    -v N      : Verbosity levels, can be added together to enable several\n");
+	ft_printf("    -v N      : Verbosity levels, can be added together\n");
 	ft_printf("                - 0 : Show only essentials\n");
 	ft_printf("                - 1 : Show lives\n");
 	ft_printf("                - 2 : Show cycles\n");
