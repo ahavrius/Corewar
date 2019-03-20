@@ -37,6 +37,7 @@ typedef char			t_bool;
 
 # define W_ARENA(p, v)		g_arena[(p + MEM_SIZE + ((v) % IDX_MOD)) % MEM_SIZE]
 # define W_COLOR(p, v) g_arena_color[(p + MEM_SIZE + (v) % IDX_MOD) % MEM_SIZE]
+# define W_TIME(p, v) g_arena_time[(p + MEM_SIZE + (v) % IDX_MOD) % MEM_SIZE]
 
 # define IS_NUM(x) (ft_strlen(x) == (size_t)ft_striter_bool((x), ft_isdigit))
 # define STR_EQ(str1, str2)	(ft_strcmp(str1, str2) == 0)
@@ -127,6 +128,7 @@ static int			g_op_tab_time[16] =
 
 t_uchar				g_arena[MEM_SIZE];
 char				g_arena_color[MEM_SIZE];
+char				g_arena_time[MEM_SIZE];
 t_player			*g_array_players[MAX_PLAYERS];
 t_list				*g_all_cursor;
 t_player			*g_last_player;
@@ -158,6 +160,7 @@ int					valid_reg(t_cursor *cursor, int arg,
 												int dir_size, int *shift);
 int					get_val(t_cursor *cursor, int *shift,
 												int dir_size, t_uchar mask);
+void				write_fun(t_cursor *cursor, int val, int ind);
 void				write_val(t_cursor *cursor, int *shift, int val, int mask);
 
 void				buttle(void);

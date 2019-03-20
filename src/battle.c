@@ -92,7 +92,7 @@ void			one_check(void)
 	{
 		rounds = -1;
 		g_cycle_to_die -= CYCLE_DELTA;
-		while (g_array_players[++rounds])
+		while (++rounds < MAX_PLAYERS && g_array_players[rounds])
 			g_array_players[rounds]->live_per_period = 0;
 		if (g_vflag & 0x02)
 			ft_printf("Cycle to die is now %d\n", g_cycle_to_die);

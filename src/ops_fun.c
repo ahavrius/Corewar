@@ -12,21 +12,6 @@
 
 #include "vm.h"
 
-t_uint			xtoi_bytecode(size_t start, size_t size)
-{
-	uint8_t	*str;
-	t_uint	res;
-	int		i;
-
-	str = g_arena;
-	res = 0;
-	i = 0;
-	start = (start + MEM_SIZE) % MEM_SIZE;
-	while (size--)
-		res += str[(start + size) % MEM_SIZE] << (8 * i++);
-	return (res);
-}
-
 int				skip_args(int arg, int dir_size, int max_arg)
 {
 	int	skip;
@@ -116,6 +101,21 @@ int				get_val(t_cursor *cursor, int *shift,
 	return (val);
 }
 
+void			write_fun(t_cursor *cursor, int val, int ind)
+{
+	int	i;
+
+	i = -1;
+	while (++i < 4)
+		W_ARENA(cursor->place + i, ind) = val >> (8 * (3 - i));
+	i = -1;
+	while (++i < 4)
+		W_COLOR(cursor->place + i, ind) = cursor->owner;
+	i = -1;
+	while (++i < 4)
+		W_TIME(cursor->place + i, ind) = 50;
+}
+
 void			write_val(t_cursor *cursor, int *shift, int val, int mask)
 {
 	short	ind;
@@ -124,16 +124,9 @@ void			write_val(t_cursor *cursor, int *shift, int val, int mask)
 	if (mask == 0xc0 || mask == 0x30 || mask == 0x0c)
 	{
 		ind = xtoi_bytecode(((cursor->place + *shift) % MEM_SIZE), IND_SIZE);
-		W_ARENA(cursor->place, ind) = val >> 24;
-		W_ARENA(cursor->place + 1, ind) = val >> 16;
-		W_ARENA(cursor->place + 2, ind) = val >> 8;
-		W_ARENA(cursor->place + 3, ind) = val;
+		write_fun(cursor, val, ind);
 		*shift += IND_SIZE;
 		print_v(cursor, ind, 0, mask);
-		W_COLOR(cursor->place, ind) = cursor->owner;
-		W_COLOR(cursor->place + 1, ind) = cursor->owner;
-		W_COLOR(cursor->place + 2, ind) = cursor->owner;
-		W_COLOR(cursor->place + 3, ind) = cursor->owner;
 	}
 	else if (mask == 0x40 || mask == 0x10 || mask == 0x04)
 	{

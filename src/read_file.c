@@ -43,8 +43,6 @@ static int	read_players(int argc, char **argv, t_list **poor_players)
 
 	i = -1;
 	amount_players = 0;
-	if (argc > MAX_PLAYERS)
-		drop_error(ERROR_PLAYERNUMBER);
 	while (++i < argc)
 	{
 		player_number = INT_MAX;

@@ -60,3 +60,18 @@ void	print_players(void)
 		list = list->next;
 	}
 }
+
+t_uint	xtoi_bytecode(size_t start, size_t size)
+{
+	uint8_t	*str;
+	t_uint	res;
+	int		i;
+
+	str = g_arena;
+	res = 0;
+	i = 0;
+	start = (start + MEM_SIZE) % MEM_SIZE;
+	while (size--)
+		res += str[(start + size) % MEM_SIZE] << (8 * i++);
+	return (res);
+}

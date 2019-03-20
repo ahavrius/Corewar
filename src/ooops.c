@@ -30,14 +30,7 @@ int		make_sti(t_cursor *cursor, int arg, int *shift)
 	if (g_vflag & 0x04)
 		ft_printf("\n%8| -> store to %d + %d = %d (with pc and mod %d)\n",
 		val2, val3, val2 + val3, cursor->place + ((val2 + val3) % IDX_MOD));
-	W_ARENA(cursor->place, val2 + val3) = val1 >> 24;
-	W_ARENA(cursor->place + 1, val2 + val3) = val1 >> 16;
-	W_ARENA(cursor->place + 2, val2 + val3) = val1 >> 8;
-	W_ARENA(cursor->place + 3, val2 + val3) = val1;
-	W_COLOR(cursor->place, val2 + val3) = cursor->owner;
-	W_COLOR(cursor->place + 1, val2 + val3) = cursor->owner;
-	W_COLOR(cursor->place + 2, val2 + val3) = cursor->owner;
-	W_COLOR(cursor->place + 3, val2 + val3) = cursor->owner;
+	write_fun(cursor, val1, val2 + val3);
 	return (*shift);
 }
 
