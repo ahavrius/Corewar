@@ -16,8 +16,6 @@ void	drop_error(char *text_error)
 {
 	ft_printf("%s\n", text_error);
 	main_free();
-
-	system("leaks -q corewar");
 	exit(0);
 }
 
@@ -39,7 +37,5 @@ void	help(char *name)
 	ft_printf("    -vizo     : Ncurses output mode\n");
 	ft_printf("    -n        : Force define number of player\n");
 	ft_printf("###########################################################\n");
-
-	system("leaks -q corewar");
 	exit(0);
 }

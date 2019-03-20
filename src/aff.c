@@ -53,7 +53,7 @@ void	print_players(void)
 	{
 		cursor = (t_cursor *)g_all_cursor->content;
 		ft_printf(
-			"id - %d value - %02x, %02x %02x %02x %02x, place - %06p d - %d\n",
+		"id - %d value - %02x, %02x %02x %02x %02x, place - %06x, delay - %d\n",
 			cursor->id, g_arena[cursor->place], g_arena[cursor->place + 1],
 					g_arena[cursor->place + 2], g_arena[cursor->place + 3],
 					g_arena[cursor->place + 4], cursor->place, cursor->delay);

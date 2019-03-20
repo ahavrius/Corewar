@@ -55,6 +55,8 @@ typedef struct		s_player
 {
 	t_header		*header;
 	char			*code;
+	t_uint			last_live;
+	t_uint			live_per_period;
 }					t_player;
 
 typedef struct		s_cursor

@@ -90,22 +90,22 @@ int				get_val(t_cursor *cursor, int *shift,
 						int dir_size, t_uchar mask)
 {
 	int		val;
+	short	ind;
 	int		reg;
 
 	reg = 0;
 	if (mask == 0xc0 || mask == 0x30 || mask == 0x0c)
 	{
-		val = xtoi_bytecode(((cursor->place + *shift) % MEM_SIZE), IND_SIZE);
-		val = (cursor->op == 13) ? val : val % IDX_MOD;
-		val = xtoi_bytecode(((cursor->place + val) % MEM_SIZE), DIR_SIZE);
+		ind = xtoi_bytecode(((cursor->place + *shift) % MEM_SIZE), IND_SIZE);
+		ind = (cursor->op == 13) ? ind : ind % IDX_MOD;
+		val = xtoi_bytecode(((cursor->place + ind) % MEM_SIZE), DIR_SIZE);
 		*shift += IND_SIZE;
 	}
 	else if (mask == 0x80 || mask == 0x20 || mask == 0x08)
 	{
 		val = xtoi_bytecode(((cursor->place + *shift) % MEM_SIZE), dir_size);
 		*shift += dir_size;
-		if (dir_size == 2)
-			val = (short)val;
+		val = (dir_size == 2) ? (short)val : val;
 	}
 	else
 	{

@@ -30,6 +30,8 @@ int		make_live(t_cursor *cursor, int arg, int *shift)
 	if (i >= 0 && i < MAX_PLAYERS && g_array_players[i] != NULL)
 	{
 		g_last_player = g_array_players[i];
+		g_array_players[i]->last_live = g_current_cyrcle;
+		g_array_players[i]->live_per_period++;
 		if (g_vflag & 0x01)
 			ft_printf("Player %d (%s) is said to be alive\n", i + 1,
 					g_last_player->header->prog_name);

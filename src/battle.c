@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   buttle.c                                           :+:      :+:    :+:   */
+/*   battle.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ahavrius <ahavrius@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -85,12 +85,15 @@ void			one_check(void)
 			ft_printf("It is now cycle %d\n", g_current_cyrcle);
 		ft_lstiter(g_all_cursor, run_one_cursor);
 	}
+	g_all_cursor = kill_cursors();
 	if (g_current_cyrcle == g_dump)
 		return ;
-	g_all_cursor = kill_cursors();
 	if (g_live_per_cycle >= NBR_LIVE || ++g_check_amount == MAX_CHECKS)
 	{
+		rounds = -1;
 		g_cycle_to_die -= CYCLE_DELTA;
+		while (g_array_players[++rounds])
+			g_array_players[rounds]->live_per_period = 0;
 		if (g_vflag & 0x02)
 			ft_printf("Cycle to die is now %d\n", g_cycle_to_die);
 		g_check_amount = 0;
@@ -102,11 +105,14 @@ void			buttle(void)
 	while (ft_lstlen(g_all_cursor) > 0 &&
 			(g_dump == DUMP || g_current_cyrcle < g_dump))
 		one_check();
-	if (g_current_cyrcle == g_dump)
-		print_map();
-	if (g_current_cyrcle == g_dump && g_pflag)
-		print_players();
-	if (g_last_player != NULL)
+	if (ft_lstlen(g_all_cursor) == 0 && g_last_player != NULL)
 		ft_printf("Contestant %d, \"%s\", has won !\n",
 		g_last_player->header->magic, g_last_player->header->prog_name);
+	else
+	{
+		if (g_current_cyrcle == g_dump)
+			print_map();
+		if (g_pflag && g_current_cyrcle == g_dump)
+			print_players();	
+	}	
 }

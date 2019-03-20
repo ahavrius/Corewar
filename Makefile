@@ -17,13 +17,13 @@ CFLAGS = 		-Werror -Wextra -Wall
 LIB_DIR =		libft/
 LIBC =			libft.a
 
-INC_DIR := 		incs/
+INC_DIR := 		inc/
 INC_DIR_LIB := 	-I ./libft/
 
-SRC_DIR = 		srcs/
-OBJ_DIR = 		objs/
+SRC_DIR = 		src/
+OBJ_DIR = 		obj/
 
-SRC = 			error.c init.c read_bytecode.c read_file.c main.c buttle.c print.c free.c \
+SRC = 			error.c init.c read_bytecode.c read_file.c main.c battle.c print.c free.c \
 				ops.c oops.c ooops.c aff.c ops_fun.c
 
 OBJ = 			$(addprefix $(OBJ_DIR), $(SRC:.c=.o))

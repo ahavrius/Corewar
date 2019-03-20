@@ -32,6 +32,8 @@ t_player	*init_player(t_header *header, char *code)
 	player = (t_player *)malloc(sizeof(t_player));
 	player->header = header;
 	player->code = code;
+	player->last_live = 0;
+	player->live_per_period = 0;
 	return (player);
 }
 
