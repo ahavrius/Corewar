@@ -25,6 +25,7 @@
 # define ERROR_FILECOR "ERROR : invalid file extension"
 # define ERROR_TOOLONG "ERROR : file is too long"
 # define ERROR_CODESIZE "ERROR : file has too large a code"
+# define ERROR_NUMPLAYERS "ERROR : Too many champions"
 
 void	drop_error(char *text_error);
 

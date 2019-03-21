@@ -59,6 +59,8 @@ static int	read_players(int argc, char **argv, t_list **poor_players)
 		read_file(argv[i], player_number, poor_players);
 		amount_players++;
 	}
+	if (amount_players > MAX_PLAYERS)
+		drop_error(ERROR_NUMPLAYERS);
 	return (amount_players);
 }
 

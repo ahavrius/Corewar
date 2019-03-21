@@ -51,12 +51,12 @@ void	print_players(void)
 	list = g_all_cursor;
 	while (list)
 	{
-		cursor = (t_cursor *)g_all_cursor->content;
+		cursor = (t_cursor *)list->content;
 		ft_printf(
-		"id - %d value - %02x, %02x %02x %02x %02x, place - %06x, delay - %d\n",
+				"cursor id - %4d value - %02x, %02x %02x %02x %02x, line - %#06x, cell - %3d,  delay - %d\n",
 			cursor->id, g_arena[cursor->place], g_arena[cursor->place + 1],
 					g_arena[cursor->place + 2], g_arena[cursor->place + 3],
-					g_arena[cursor->place + 4], cursor->place, cursor->delay);
+					g_arena[cursor->place + 4], cursor->place / 32 * 32, cursor->place % 32, cursor->delay);
 		list = list->next;
 	}
 }

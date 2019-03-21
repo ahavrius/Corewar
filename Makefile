@@ -12,8 +12,8 @@
 
 NAME = 		corewar
 
-CC = 			gcc
-CFLAGS = 		-Werror #-Wextra -Wall
+CC = 			clang
+CFLAGS = 		-Werror -Wextra -Wall
 LIB_DIR =		libft/
 LIBC =			libft.a
 
