@@ -59,6 +59,7 @@ int					ft_strcmp(const char *str1, const char *str2);
 
 void				*ft_memalloc(size_t size);
 void				ft_memdel(void **ap);
+char				*ft_new_strjoin(char *str1, char const *str2);
 char				*ft_strnew(size_t size);
 void				ft_strdel(char **as);
 void				ft_strclr(char *s);

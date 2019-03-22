@@ -19,6 +19,19 @@
 # include <stdlib.h>
 # include "libft.h"
 
+# define RED(string) "\x1b[31m" string "\x1b[0m"
+# define BRED(string) "\x1b[1;31m" string "\x1b[0m"
+# define GREEN(string) "\x1b[0;32m" string "\x1b[0m"
+# define BGREEN(string) "\x1b[1;32m" string "\x1b[0m"
+# define YELLOW(string) "\x1b[0;33m" string "\x1b[0m"
+# define BYELLOW(string) "\x1b[01;33m" string "\x1b[0m"
+# define BLUE(string) "\x1b[0;34m" string "\x1b[0m"
+# define BBLUE(string) "\x1b[1;34m" string "\x1b[0m"
+# define MAGENTA(string) "\x1b[0;35m" string "\x1b[0m"
+# define BMAGENTA(string) "\x1b[1;35m" string "\x1b[0m"
+# define CYAN(string) "\x1b[0;36m" string "\x1b[0m"
+# define BCYAN(string) "\x1b[1;36m" string "\x1b[0m"
+
 int		ft_strchr_or(const char *s, int c);
 void	func_init(void);
 void	clean_flags(void);

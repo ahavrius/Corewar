@@ -15,6 +15,7 @@
 
 # include "libft.h"
 # include "vm_error.h"
+# include "visual.h"
 # include "op.h"
 # include <fcntl.h>
 # include <unistd.h>
@@ -77,9 +78,12 @@ typedef struct		s_op
 	char			*name;
 	t_uchar			args_num;
 	t_uchar			args_types[3];
+	t_uchar			opcode;
 	t_bool			flag;
 	t_uchar			t_dir_size;
 	int				(*func)(t_cursor *, int, int *);
+	t_uchar			octal;
+	t_uchar			label;
 }					t_op;
 
 int					make_live(t_cursor *cursor, int arg, int *shift);
@@ -101,26 +105,28 @@ int					make_aff(t_cursor *cursor, int arg, int *shift);
 
 static t_op			g_op_tab[16] =
 {
-	{"live", 1, {T_DIR}, 0, 4, make_live},
-	{"ld", 2, {T_DIR | T_IND, T_REG}, 1, 4, make_ld},
-	{"st", 2, {T_REG, T_IND | T_REG}, 1, 4, make_st},
-	{"add", 3, {T_REG, T_REG, T_REG}, 1, 4, make_add},
-	{"sub", 3, {T_REG, T_REG, T_REG}, 1, 4, make_sub},
+	{"live", 1, {T_DIR}, 1, 0, 4, make_live, 0, 0},
+	{"ld", 2, {T_DIR | T_IND, T_REG}, 2, 1, 4, make_ld, 1, 0},
+	{"st", 2, {T_REG, T_IND | T_REG}, 3, 1, 4, make_st, 1, 0},
+	{"add", 3, {T_REG, T_REG, T_REG}, 4, 1, 4, make_add, 1, 0},
+	{"sub", 3, {T_REG, T_REG, T_REG}, 5, 1, 4, make_sub, 1, 0},
 	{"and", 3, {T_REG | T_DIR | T_IND, T_REG | T_IND | T_DIR, T_REG},
-		1, 4, make_and},
+		6, 1, 4, make_and, 1, 0},
 	{"or", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG},
-		1, 4, make_or},
+		7, 1, 4, make_or, 1, 0},
 	{"xor", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG},
-		1, 4, make_xor},
-	{"zjmp", 1, {T_DIR}, 0, 2, make_zjmp},
-	{"ldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 1, 2, make_ldi},
-	{"sti", 3, {T_REG, T_REG | T_DIR | T_IND, T_DIR | T_REG}, 1, 2, make_sti},
-	{"fork", 1, {T_DIR}, 0, 2, make_fork},
-	{"lld", 2, {T_DIR | T_IND, T_REG}, 1, 4, make_lld},
+		8, 1, 4, make_xor, 1, 0},
+	{"zjmp", 1, {T_DIR}, 9, 0, 2, make_zjmp, 0, 1},
+	{"ldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 10, 1, 2,
+		make_ldi, 1, 1},
+	{"sti", 3, {T_REG, T_REG | T_DIR | T_IND, T_DIR | T_REG}, 11, 1, 2,
+		make_sti, 1, 1},
+	{"fork", 1, {T_DIR}, 12, 0, 2, make_fork, 0, 1},
+	{"lld", 2, {T_DIR | T_IND, T_REG}, 13, 1, 4, make_lld, 1, 0},
 	{"lldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG},
-		1, 2, make_lldi},
-	{"lfork", 1, {T_DIR}, 0, 2, make_lfork},
-	{"aff", 1, {T_REG}, 1, 4, make_aff}
+		14, 1, 2, make_lldi, 1, 0},
+	{"lfork", 1, {T_DIR}, 15, 0, 2, make_lfork, 0, 1},
+	{"aff", 1, {T_REG}, 16, 1, 4, make_aff, 1, 0}
 };
 
 static int			g_op_tab_time[16] =
@@ -164,7 +170,7 @@ void				write_fun(t_cursor *cursor, int val, int ind);
 void				write_val(t_cursor *cursor, int *shift, int val, int mask);
 
 void				buttle(void);
-void				print_players(void);
+void				print_cur(void);
 void				print_map(void);
 void				print_v(t_cursor *cursor, int val, int reg, t_uchar mask);
 void				cursor_move(t_cursor *cursor, int shift);

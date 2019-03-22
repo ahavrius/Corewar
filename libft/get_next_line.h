@@ -18,6 +18,7 @@
 # define BUFF_SIZE 2
 
 int				get_next_line(const int fd, char **line);
+int				get_next_lines(const int fd, char **line);
 
 typedef struct	s_buff
 {
